@@ -15,3 +15,6 @@ venv/
 */__pycache__/
 results/
 .DS_Store
+notebooks/MNIST/raw
+notebooks/data/MNIST/raw
+notebooks/crown_ibp_checkpoints
