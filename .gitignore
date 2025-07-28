@@ -6,6 +6,7 @@
 *.logwandb/
 wandb/
 ./wandb/
+/tmp/wandb/
 data/
 results/
 venv/
