@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "FastSDPCertification"
+version = "0.1"
+description = "Ton projet"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = [
+    "adversarial_attacks",
+    "conic_bundle",
+    "data",
+    "networks",
+    "solve",
+    "tools"
+]
