@@ -1,0 +1,29 @@
+data : "mnist"
+train_path  : "data/datasets/mnist_train_10000.pth"
+test_path   : "data/datasets/mnist_test_10000.pth"
+evaluate_robustness_path : "data/datasets/mnist_subset_10_per_class.pth"
+num_classes : 10
+# Projected Gradient Descent (PGD)
+adversarial_attack : "PGD"
+epsilon : 0.3
+epsilon_test : 0.015
+alpha : 0.01
+steps : 40
+random_start : true
+num_epochs : 200
+lr : 0.001
+batch_size : 128
+n :
+  - 784
+  - 100
+  - 100
+  - 100
+  - 100
+  - 100
+  - 100
+  - 10
+K : 7
+name_network : "6x100"
+
+
+  

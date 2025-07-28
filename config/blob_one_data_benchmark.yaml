@@ -1,0 +1,53 @@
+data :
+  name : "blob"
+  path : "data/datasets/blob_dataset.pth"
+  x : 
+  - 0.0
+  - 0.0
+  y : 2
+  ytarget : 0
+  bounds_method : "IBP"
+  L :
+  - -1.0
+  - -5.0
+  - -150.
+  U :
+  - 5.0
+  - 100.0
+  - 1500.
+
+
+
+network :
+  name : "blob_nn"
+  path : "data/models/blob_nn.pt" 
+  K : 2
+  n : 
+    - 2
+    - 2
+    - 3
+
+
+certification_problem :
+  epsilon: 4
+  models:
+  - "LanSDP"
+  - "LanQuad"
+  - "MdSDP"
+  - "MdQuad"
+  - "MzbarSDP"
+  - "MzbarQuad"
+  cuts :
+  - "Tij"
+  - "Tij_before_penultimate_layer"
+  - "triangularization"
+  - "RLT"
+  - "McC_betaz_logits"
+  - "logits_comparaison_11"
+  - "logits_comparaison_12"
+  all_combinations_cuts : true
+
+
+conic_solver : 
+  filename : "results/blob_conic_bundle"
+  McCormick : "diagonal"

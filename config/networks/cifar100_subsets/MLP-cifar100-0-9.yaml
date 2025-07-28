@@ -1,0 +1,27 @@
+data : "cifar100"
+train_path  : "data/datasets/cifar100_subsets/cifar100-0-9_train.pth"
+test_path   : "data/datasets/cifar100_subsets/cifar100-0-9_test.pth"
+evaluate_robustness_path : "data/datasets/cifar100_subsets/cifar100-0-9-subset.pth"
+num_classes : 10
+num_samples : 100
+
+# Projected Gradient Descent (PGD)
+adversarial_attack : "PGD"
+epsilon : 0.01
+alpha : 0.01
+steps : 40
+random_start : true
+num_epochs : 1000
+lr : 0.001
+batch_size : 64
+dropout : 0.5
+n :
+  - 3072
+  - 512
+  - 256
+  - 10
+K : 3
+name_network : "MLP-cifar100-0-9"
+
+
+  

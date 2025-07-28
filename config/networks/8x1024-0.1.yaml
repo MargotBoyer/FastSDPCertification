@@ -1,0 +1,31 @@
+data : "mnist"
+train_path  : "data/datasets/mnist_train_10000.pth"
+test_path   : "data/datasets/mnist_test_10000.pth"
+evaluate_robustness_path : "data/datasets/mnist_subset_10_per_class.pth"
+num_classes : 10
+adversarial_attack : "CROWN-IBP"
+epsilon : 0.1
+epsilon_test : 0.1
+alpha : 0.01
+steps : 40
+random_start : true
+num_epochs : 200
+lr : 0.001
+batch_size : 128
+n :
+  - 784
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 1024
+  - 10
+K : 9
+dropout : 0
+name_network : "8x1024-0.1"
+
+
+  

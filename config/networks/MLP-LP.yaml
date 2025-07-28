@@ -1,0 +1,18 @@
+data : "mnist"
+train_path  : "data/datasets/mnist_train_10000.pth"
+test_path   : "data/datasets/mnist_test_10000.pth"
+evaluate_robustness_path : "data/datasets/mnist_subset_10_per_class.pth"
+num_classes : 10
+# Linear Programming (LP)
+adversarial_attack : "LP"
+batch_size : 128
+num_epochs : 150
+lr : 0.001
+epsilon: 0.3
+n :
+  - 784
+  - 500
+  - 10
+K : 2
+compute_bounds_method : "alpha-CROWN"
+name_network : "MLP-LP"

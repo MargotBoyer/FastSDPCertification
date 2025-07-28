@@ -1,0 +1,58 @@
+data :
+  name : "moon"
+  path : "data/datasets/moon_dataset.pth"
+  x : 
+  - 0.0
+  - 0.0
+  y : 1
+  ytarget : 0
+  bounds_method : "CROWN"
+  L : 
+  - -5
+  - -5
+  - -1.0
+  - -2.0
+  - -150
+  U :
+  - 5
+  - 15
+  - 100
+  - 1000
+  - 1500
+
+
+
+network :
+  name : "moon_nn"
+  path : "data/models/moon_nn.pt"
+  K : 4
+  n : 
+    - 2
+    - 4
+    - 10
+    - 6
+    - 2
+
+
+certification_problem :
+  epsilon: 0.5
+  models:
+  - "LanSDP"
+  - "MdSDP"
+  - "MzbarSDP"
+  cuts :
+  # - "triangularization"
+  - "Tij"
+  - "Tij_before_penultimate_layer"
+  - "McC_betaz_logits"
+  - "logits_comparaison_11"
+  - "logits_comparaison_12"
+  # - "RLT"
+  # - "allMC"
+  RLT_prop : 1
+  all_combinations_cuts : True
+  
+
+conic_solver : 
+  filename : "results/moon_conic_bundle"
+  McCormick : "diagonal"

@@ -1,0 +1,18 @@
+data : "blob"
+train_path  : "data/datasets/blob_dataset.pth"
+test_path   : "data/datasets/blob_dataset.pth"
+num_classes : 3
+# Linear Programming (LP)
+adversarial_attack : "LP"
+batch_size : 128
+num_epochs : 2
+lr : 0.001
+epsilon: 0.3
+n :
+  - 2
+  - 5
+  - 8
+  - 3
+K : 3
+compute_bounds_method : "alpha-CROWN"
+name_network : "test-blob"
