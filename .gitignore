@@ -1,0 +1,17 @@
+*.pth
+*.csv
+*.gz
+*.ptf
+*.lp
+*.logwandb/
+wandb/
+./wandb/
+data/
+results/
+venv/
+.env/
+.ipynb_checkpoints/
+*.pyc
+*/__pycache__/
+results/
+.DS_Store
