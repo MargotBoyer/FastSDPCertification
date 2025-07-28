@@ -7,7 +7,7 @@ from networks import ReLUNN
 from pydantic import ValidationError
 import datetime
 
-from bounds.bounds import (
+from bounds import (
     compute_bounds,
     check_stability_neurons,
     prune_adversarial_targets,

@@ -5,6 +5,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import yaml
 from pydantic import ValidationError
+import gc
 
 from adversarial_attacks import (
     PGDAttack,
@@ -220,11 +221,14 @@ def complex_adversarial_training_loop(
                 "model_architecture": str(model),
                 "batch_size": trainloader.batch_size,
             },
-            save_code=False,  # Ne sauvegarde pas le code
+            save_code=False,
+            dir="wandb",
+            mode="online",
             settings=wandb.Settings(_disable_stats=True),
         )
         # Optionnel: surveiller les gradients et paramètres
         # wandb.watch(model, log="gradients", log_freq=500)  # gradients plutot que all
+        # wandb.watch(model, log="none")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -359,10 +363,10 @@ def complex_adversarial_training_loop(
             pbar.set_postfix({"Loss": f"{batch_loss:.4f}"})
 
             # Log par batch (optionnel, pour un suivi très détaillé)
-            if use_wandb and batch_idx % 5 == 0:  # Log tous les 50 batches
-                wandb.log(
-                    {"batch_loss": batch_loss, "epoch": epoch, "batch": batch_idx}
-                )
+            # if use_wandb and batch_idx % 5 == 0:  # Log tous les 50 batches
+            #     wandb.log(
+            #         {"batch_loss": batch_loss, "epoch": epoch, "batch": batch_idx}
+            #     )
 
         # Métriques d'époque
         avg_train_loss = running_loss / len(trainloader)
@@ -460,6 +464,12 @@ def complex_adversarial_training_loop(
 
                 # # Log histogramme des pertes par batch
                 # wandb.log({"batch_losses_histogram": wandb.Histogram(batch_losses)})
+
+
+        # Libérer la mémoire GPU/RAM à chaque epoch
+        torch.cuda.empty_cache()
+        gc.collect()
+
 
     # Graphiques finaux (sauvegarde locale)
     if not use_wandb:

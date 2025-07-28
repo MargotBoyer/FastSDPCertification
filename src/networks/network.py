@@ -3,7 +3,7 @@ import torch
 import sys
 import os
 import yaml
-from src.tools import get_project_path
+from tools import get_project_path
 
 import data
 

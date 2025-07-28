@@ -31,7 +31,7 @@ def solve_single_lp(args):
     try:
         # Import inside worker to avoid pickling issues
         from solve import ClassicLP
-        from bounds.bounds import compute_bounds_data
+        from bounds import compute_bounds_data
 
         # Compute bounds for this image and target
         L, U = compute_bounds_data(

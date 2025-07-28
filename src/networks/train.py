@@ -10,7 +10,7 @@ import os
 import argparse
 from typing import List
 from adversarial_attacks import PGDAttack, LPAttack, SDPAttack
-from bounds.bounds import compute_bounds_data
+from bounds import compute_bounds_data
 from adv_train import (
     complex_adversarial_training_loop,
     load_adversarial_training_config,

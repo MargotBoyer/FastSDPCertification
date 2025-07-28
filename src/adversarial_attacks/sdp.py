@@ -5,7 +5,7 @@ import numpy as np
 from torch.autograd import grad
 
 from solve import SDP_attack
-from bounds.bounds import compute_bounds_data
+from bounds import compute_bounds_data
 
 
 class SDPAttack:

@@ -10,7 +10,7 @@ import time
 
 from solve import ClassicLP
 from networks import ReLUNN
-from bounds.bounds import compute_bounds_data
+from bounds import compute_bounds_data
 from tools import round_list_depth_2, round_list_depth_3
 import sys
 
