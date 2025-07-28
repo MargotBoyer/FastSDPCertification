@@ -161,14 +161,6 @@ class ConstraintsClassic(CommonConstraints):
             assert (
                 len(num_matrix) == len(i) == len(j) == len(value)
             ), "The length of num_matrix, i, j, and value must be the same."
-            print(
-                "Adding index :",
-                [ind_cstr] * len(self.list_cstr[ind_cstr]["num_matrix"]),
-            )
-            print("type of num_matrix:", type(num_matrix))
-            print("type of i:", type(i))
-            print("type of j:", type(j))
-            print("type of value:", type(value))
 
             self.task.putbarablocktriplet(
                 ind_cstr * np.ones(len(self.list_cstr[ind_cstr]["num_matrix"]), dtype=np.int32),
