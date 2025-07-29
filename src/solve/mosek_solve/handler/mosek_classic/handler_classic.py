@@ -173,7 +173,7 @@ class MosekClassicHandler:
         # self.task.putdouparam(mosek.dparam.optimizer_max_time, 7200)
         # self.task.putintparam(mosek.iparam.intpnt_max_iterations, 200)
         # Désactiver le présolve
-        ##task.putintparam(mosek.iparam.presolve_use, mosek.MSK_PRESOLVE_MODE_OFF)
+        # self.task.putintparam(mosek.iparam.presolve_use, 0)
         # Utiliser le simplexe dual
         ##task.putintparam(mosek.iparam.optimizer, mosek.optimizertype.dual_simplex)
         print("4 threads used for MOSEK solver")

@@ -293,6 +293,7 @@ class CommonConstraints(VariablesCall):
             name_matrix = self.indexes_matrices.get_name_matrix(num_matrix)
             if self.new_constraint(f"First term equal to zero of matrix {name_matrix}"):
                 continue
+            #print(f"Adding constraint matrix {name_matrix}[1]=0")
             self.list_cstr[self.current_num_constraint]["elements"].add(
                 i=0, j=0, num_matrix=num_matrix, value=1.0
             )

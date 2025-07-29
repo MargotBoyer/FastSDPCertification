@@ -193,8 +193,8 @@ if __name__ == "__main__":
             project_name=config["name_network"],
             experiment_name=f"{args.data_modele}_{attack}_"
             + datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss"),
-            log_frequency=5,
-            use_wandb=True,
+            log_frequency=10,
+            use_wandb=False,
             yaml_file=f"networks/{args.network}.yaml",
             epsilon_to_test=epsilon_to_test,
             **config,
@@ -214,6 +214,9 @@ if __name__ == "__main__":
 
     name_network = config["name_network"]
     if args.adv_train:
+        print("SAVE ADV : ", f"data/models/{args.data_modele}_adv_{name_network}.pt")
+
         torch.save(state_dict, f"data/models/{args.data_modele}_adv_{name_network}.pt")
     else:
+        print("SAVE ADV : ", f"data/models/{args.data_modele}_nn.pt")
         torch.save(state_dict, f"data/models/{args.data_modele}_nn.pt")

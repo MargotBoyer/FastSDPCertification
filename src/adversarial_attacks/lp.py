@@ -8,7 +8,7 @@ import multiprocessing as mp
 import queue
 import time
 
-from solve import ClassicLP
+from solve.gurobi_solve import ClassicLP
 from bounds import compute_bounds_data
 from tools import round_list_depth_2, round_list_depth_3
 

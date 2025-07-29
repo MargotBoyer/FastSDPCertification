@@ -18,5 +18,7 @@ packages = [
     "data",
     "networks",
     "solve",
+    "gurobi_solve",
+    "mosek_solve",
     "tools"
 ]

@@ -10,7 +10,7 @@ epsilon_test : 0.015
 alpha : 0.01
 steps : 40
 random_start : true
-num_epochs : 200
+num_epochs : 1
 lr : 0.001
 batch_size : 128
 n :

@@ -114,6 +114,7 @@ class Certification_Problem:
         print("SOLVER CONFIG:", solver_config)
         dataloader = DataLoader(self.dataset, batch_size=1, shuffle=False)
 
+
         stable_actives_study = pd.DataFrame(
             columns=[
                 "label",
@@ -128,19 +129,24 @@ class Certification_Problem:
 
             # print("x  :", x)
             print("ytrue:", ytrue)
-            if (ytrue.item()) % 10 != 0:
-                print(
-                    f"Skipping sample {i + 1} with label {ytrue.item()} as it is not a multiple of 10."
-                )
-                continue
+            # if (i) % 10 != 0:
+            #     print(
+            #         f"Skipping sample {i + 1} with label {ytrue.item()} as it is not a multiple of 10."
+            #     )
+            #     continue
+            # if ytrue.item() != 1:
+            #     print(
+            #         f"Skipping sample {i + 1} with label {ytrue.item()} as it is not a multiple of 10."
+            #     )
+            #     continue
             # assert ytrue == y, "ytrue should match the label y"
             print("x  shape:", x.shape)
-            # if i <= 40 or i >= 50:
-            #     # print(
-            #     #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
-            #     # )
-            #     print("Skipping data sample ", i + 1, "for testing purposes.")
-            #     continue
+            if i%10 != 0  or i < 80 :
+                # print(
+                #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
+                # )
+                print("Skipping data sample ", i + 1, "for testing purposes.")
+                continue
             print("i : ", i)
             # exit()
             x = x.view(-1)  # Ensure x is a 2D tensor
