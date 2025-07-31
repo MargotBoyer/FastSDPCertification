@@ -1,4 +1,6 @@
 def objective_Lan(self):
+    if not self.use_active_neurons:
+        assert self.keep_penultimate_actives , "keep_penultimate_actives must be True for Lan objective function"
     print("Adding objective function for Lan")
     if self.LAST_LAYER:
         print("LAST LAYER IN Lan")
