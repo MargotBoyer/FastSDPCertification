@@ -9,11 +9,15 @@ import argparse
 infinity = 1e8
 
 
-def get_m_indexes_of_higher_values_in_list(L, m):
+def get_m_indexes_of_higher_values_in_list(L, m, indexes_pruned=[]):
     """
     Returns the indexes of the m highest values in the list L.
     """
-    return sorted(range(len(L)), key=lambda i: L[i], reverse=True)[:m]
+    return [
+        i
+        for i in sorted(range(len(L)), key=lambda i: L[i], reverse=True)
+        if i not in indexes_pruned
+    ][:m]
 
 
 def deduct_two_lists(L1, L2):

@@ -4,7 +4,7 @@ data :
   num_classes : 10
   num_samples : 100
 
-epsilon : 0.015
+epsilon : 0.026
 
 network :
   name : "9x100"

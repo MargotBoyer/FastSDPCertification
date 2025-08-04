@@ -59,15 +59,14 @@ models :
     - "RLT"
     - "triangularization"
     RLT_props : 
-    - 0.1
-    - 0.2
+    - 0.5
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
     use_fusion: false  # Whether to use the fusion API for MOSEK
     use_callback : false # Whether to use the callback for MOSEK
     use_active_neurons: false # Whether to use active neurons in the certification problem as variables
-    keep_penultimate_actives : true # Whether to keep the penultimate layer active neurons in the certification problem
+    keep_penultimate_actives : false # Whether to keep the penultimate layer active neurons in the certification problem
     use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
     bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
 
@@ -84,6 +83,8 @@ models :
   #   RLT_props : 
   #   - 0.1
   #   - 0.2
+  #   - 0.3
+  #   - 0.5
   #   all_combinations_cuts : false
   #   MATRIX_BY_LAYERS: true
   #   LAST_LAYER: false

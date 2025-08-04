@@ -77,10 +77,6 @@ def ReLU_constraint_stable_active_relaxation(
 
 def ReLU_constraint_Lan(
     self,
-    upper_bound_neuron: bool = True,
-    lower_bound_neuron: bool = True,
-    upper_bound_decomposed: bool = True,
-    lower_bound_decomposed: bool = True,
 ):
     print("Adding quadratic RELU constraint")
     for k in range(1, self.K):

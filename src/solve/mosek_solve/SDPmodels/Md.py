@@ -94,12 +94,7 @@ class MdSDP(MosekSolver):
         ub_decomposed = "ReLU_active_ub_decomposed" in cuts
         lb_decomposed = "ReLU_active_lb_decomposed" in cuts
 
-        self.ReLU_constraint_Lan(
-            upper_bound_neuron=True,
-            lower_bound_neuron=True,
-            upper_bound_decomposed=True,
-            lower_bound_decomposed=True,
-        )
+        self.ReLU_constraint_Lan()
 
         if "triangularization" in cuts:
             self.ReLU_triangularization()

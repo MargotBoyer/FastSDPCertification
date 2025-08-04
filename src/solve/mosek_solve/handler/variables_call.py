@@ -842,7 +842,7 @@ class VariablesCall:
             value=-value * self.U[layer2][neuron2],
         )
         if layer1 > 0:
-            print("RELU STABLE: Skipping as layer1 = {layer1} > 0")
+            print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
             return
         print(
             f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*L={self.L[layer1][neuron1]}    add_z_bound_composed_3 "

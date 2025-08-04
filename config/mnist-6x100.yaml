@@ -4,7 +4,7 @@ data :
   num_classes : 10
   num_samples : 100
 
-epsilon : 0.015
+epsilon : 0.026
 
 network :
   name : "6x100"
@@ -63,8 +63,11 @@ models :
     - "RLT"
     - "triangularization"
     RLT_props : 
-    - 0.1
-    - 0.2
+    # - 0.1
+    # - 0.2
+    # - 0.3
+    # - 0.5
+    - 1
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
@@ -72,7 +75,7 @@ models :
     use_callback : false # Whether to use the callback for MOSEK
     use_active_neurons: false # Whether to use active neurons in the certification problem as variables
     use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
-    keep_penultimate_actives : true
+    keep_penultimate_actives : false
     bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
 
 
@@ -89,6 +92,8 @@ models :
   #   RLT_props : 
   #   - 0.1
   #   - 0.2
+  #   - 0.3
+  #   - 0.5
   #   all_combinations_cuts : false
   #   MATRIX_BY_LAYERS: true
   #   LAST_LAYER: false
