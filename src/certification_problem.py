@@ -128,7 +128,12 @@ class Certification_Problem:
 
             # print("x  :", x)
             print("ytrue:", ytrue)
-            # if (ytrue.item()) % 10 != 0:
+            # if (i) % 10 != 0:
+            #     print(
+            #         f"Skipping sample {i + 1} with label {ytrue.item()} as it is not a multiple of 10."
+            #     )
+            #     continue
+            # if ytrue.item() != 1:
             #     print(
             #         f"Skipping sample {i + 1} with label {ytrue.item()} as it is not a multiple of 10."
             #     )

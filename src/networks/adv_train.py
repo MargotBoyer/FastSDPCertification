@@ -9,12 +9,12 @@ import gc
 
 from adversarial_attacks import (
     PGDAttack,
-    LPAttack,
-    SDPAttack,
-    LP_Attack_Optimized,
-    LPAttack2,
-    LPAttack3Parallel,
-    CrownIBP_Attack,
+    # LPAttack,
+    # SDPAttack,
+    # LP_Attack_Optimized,
+    # LPAttack2,
+    # LPAttack3Parallel,
+    # CrownIBP_Attack,
 )
 from tools import Adversarial_Network_Training, get_project_path
 
@@ -527,6 +527,8 @@ def load_adversarial_training_config(config_path):
     Returns:
         dict: Configuration chargée.
     """
+
+    print("PATH CONFIG : ", get_project_path(config_path))
 
     with open(get_project_path(config_path), "r") as file:
         raw_config = yaml.safe_load(file)

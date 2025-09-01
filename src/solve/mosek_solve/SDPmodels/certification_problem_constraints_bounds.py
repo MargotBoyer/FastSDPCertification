@@ -10,6 +10,7 @@ def quad_bounds(self):
     print("Adding quadratic bounds constraint")
 
     for k in range(self.K + 1 if self.LAST_LAYER else self.K):
+        print(f"Adding quadratic bounds constraint for layer {k}")
         for j in range(self.n[k]):
             if (k, j) in self.stable_inactives_neurons or (
                 k,

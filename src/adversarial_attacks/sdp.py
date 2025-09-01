@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 from torch.autograd import grad
 
-from solve import SDP_attack
+from solve.mosek_solve import SDP_attack
 from bounds import compute_bounds_data
 
 

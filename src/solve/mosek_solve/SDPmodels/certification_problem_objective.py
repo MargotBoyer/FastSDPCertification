@@ -1,4 +1,5 @@
 def objective_Lan(self):
+   
     print("Adding objective function for Lan")
     if self.LAST_LAYER:
         print("LAST LAYER IN Lan")
@@ -37,6 +38,8 @@ def objective_Lan(self):
 
 
 def objective_Md(self):
+    if not self.use_active_neurons:
+        assert self.keep_penultimate_actives , "keep_penultimate_actives must be True for Md objective function"
     if self.LAST_LAYER:
         self.handler.Objective.add_linear_variable(
             "z",

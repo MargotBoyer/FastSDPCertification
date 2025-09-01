@@ -134,6 +134,7 @@ class Solver:
         self.dataset_name = kwargs.get("dataset_name")
         print("Data name in solver:", self.dataset_name)
         print("End of initialization of solver, ytrue :", self.ytrue)
+        print("STABLE ACTIVES NEURONS: ", self.stable_actives_neurons)
 
     @staticmethod
     def parse_yaml(yaml_file):
