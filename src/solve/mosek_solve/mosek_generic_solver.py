@@ -157,6 +157,7 @@ class MosekSolver(Solver):
 
     def run_optimization(self, cuts: Dict, verbose: bool = False):
         try:
+            print("STUDY : RLT_prop in run_optimization: ", self.RLT_prop)
             print("STUDY : Beginnning of run_optimization with cuts: ", cuts)
             # self.handler.renew_solver()
             print("STUDY : Initiated solver.")

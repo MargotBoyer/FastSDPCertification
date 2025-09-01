@@ -6,7 +6,7 @@ num_classes : 10
 # Projected Gradient Descent (PGD)
 adversarial_attack : "PGD"
 epsilon : 0.3
-epsilon_test : 0.026
+epsilon_test : 0.015
 alpha : 0.01
 steps : 40
 random_start : true

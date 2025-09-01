@@ -135,7 +135,7 @@ class Certification_Problem:
             #     continue
             # assert ytrue == y, "ytrue should match the label y"
             print("x  shape:", x.shape)
-            if i <= 40 or i >= 50:
+            if i <= 40 or i >= 45:
                 # print(
                 #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
                 # )
@@ -145,7 +145,9 @@ class Certification_Problem:
             # exit()
             x = x.view(-1)  # Ensure x is a 2D tensor
             print("x  shape after view:", x.shape)
-            print(f"Running certification for sample {i + 1} of label {ytrue.item()}")
+            print(
+                f"STUDY : Running certification for sample {i + 1} of label {ytrue.item()}"
+            )
             dict_infos = dict(solver_config)
             dict_infos.pop("certification_model_name")
             print("dict_infos:", dict_infos)
