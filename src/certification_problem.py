@@ -140,12 +140,12 @@ class Certification_Problem:
             #     continue
             # assert ytrue == y, "ytrue should match the label y"
             print("x  shape:", x.shape)
-            if i <= 40 or i >= 45:
-                # print(
-                #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
-                # )
-                print("Skipping data sample ", i + 1, "for testing purposes.")
-                continue
+            # if i <= 40 or i >= 45:
+            #     # print(
+            #     #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
+            #     # )
+            #     print("Skipping data sample ", i + 1, "for testing purposes.")
+            #     continue
             print("i : ", i)
             # exit()
             x = x.view(-1)  # Ensure x is a 2D tensor
