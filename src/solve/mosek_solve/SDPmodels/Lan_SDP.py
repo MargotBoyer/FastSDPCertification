@@ -60,7 +60,7 @@ class LanSDP(MosekSolver):
         ]
         if "ytarget" in kwargs:
             self.ytarget = kwargs["ytarget"]
-        else:
+        elif not self.is_trivially_solved:
             self.ytarget = np.random.choice(self.possible_targets)
 
         print("Neurones stables actives: ", self.stable_actives_neurons)

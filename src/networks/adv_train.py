@@ -9,12 +9,12 @@ import gc
 
 from adversarial_attacks import (
     PGDAttack,
-    # LPAttack,
-    # SDPAttack,
+    LPAttack,
+    SDPAttack,
     # LP_Attack_Optimized,
     # LPAttack2,
-    # LPAttack3Parallel,
-    # CrownIBP_Attack,
+    LPAttack3Parallel,
+    CrownIBP_Attack,
 )
 from tools import Adversarial_Network_Training, get_project_path
 
@@ -465,11 +465,9 @@ def complex_adversarial_training_loop(
                 # # Log histogramme des pertes par batch
                 # wandb.log({"batch_losses_histogram": wandb.Histogram(batch_losses)})
 
-
         # Libérer la mémoire GPU/RAM à chaque epoch
         torch.cuda.empty_cache()
         gc.collect()
-
 
     # Graphiques finaux (sauvegarde locale)
     if not use_wandb:

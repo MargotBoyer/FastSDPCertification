@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from auto_LiRPA import BoundedModule, BoundedTensor
 from auto_LiRPA.perturbations import PerturbationLpNorm
+import time
 
 from tools import round_list_depth_2, change_to_zero_negative_values
 
@@ -30,7 +31,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
 
     x = x.type(torch.float).view(-1).unsqueeze(0).to(device)
     print("x shape : ", x.shape)
-
+    
     bounded_model = BoundedModule(
         network,
         torch.zeros_like(x).to(device),
@@ -94,6 +95,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
 
     L = round_list_depth_2(L)
     U = round_list_depth_2(U)
+    
     return L, U
 
 
@@ -104,9 +106,12 @@ def compute_bounds(self, method: str = "IBP"):
     Args:
         method (str): The method to compute the bounds (CROWN, IBP, Linear, etc.).
     """
+    start_compute_bd_time = time.time()
     L, U = compute_bounds_data(
         self.network, self.x, self.epsilon, self.n, self.K, method=method
     )
+    end_compute_bd_time = time.time()
+    self.compute_bounds_time = end_compute_bd_time - start_compute_bd_time
     self.L = L
     self.U = U
 
@@ -117,6 +122,7 @@ def check_stability_neurons(
     """
     Check the stability of neurons in the network.
     """
+    print("STUDY : Checking stability of neurons ...")
     self.stable_inactives_neurons = []
     self.stable_actives_neurons = []
     # Check if the neurons are stable
@@ -128,19 +134,26 @@ def check_stability_neurons(
                 self.stable_actives_neurons.append((k, j))
     self.stable_active_neurons = set(self.stable_actives_neurons)
     self.stable_inactive_neurons = set(self.stable_inactives_neurons)
+    print(
+        "STUDY : Stable neurons : ",
+        len(self.stable_active_neurons) + len(self.stable_inactive_neurons),
+    )
 
 
 def prune_adversarial_targets(self):
     """
     Prune the adversarial targets based on the bounds : targets with upper bound lower than other target's lower bound is removed from the adversarial target.
     """
-    for j in self.ytargets:
+    for j in list(self.ytargets):
+
         if j == self.ytrue:
             continue
-        if any(
+        if self.U[self.K][j] <= self.L[self.K][self.ytrue]:
+            self.ytargets.remove(j)
+        elif any(
             self.U[self.K][j] < self.L[self.K][j2] for j2 in self.ytargets if j2 != j
         ):
-            print("Adversarial target not selected : ", j)
             self.ytargets.remove(j)
         else:
-            print("Adversarial target selected : ", j)
+            # print("STUDY : Adversarial target selected : ", j)
+            continue

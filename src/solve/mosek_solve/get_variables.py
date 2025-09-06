@@ -370,6 +370,7 @@ def get_results(self, cuts: List, verbose: bool = False):
         "iterations": num_iterations,
         "time": self.handler.time_solving,
         "pretreatment_time": self.handler.time_pretreatment,
+        "bound_time": self.compute_bounds_time,
         "MATRIX_BY_LAYERS": self.MATRIX_BY_LAYERS,
         "LAST_LAYER": self.LAST_LAYER,
         "USE_STABLE_ACTIVES": self.use_active_neurons,
@@ -415,6 +416,43 @@ def get_results(self, cuts: List, verbose: bool = False):
         if verbose:
             logger_mosek.debug("Other solution status")
 
+    print("dic benchmark keys : ", dic_benchmark)
+    if self.benchmark_dataframe is None:
+        self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
+    else:
+        self.benchmark_dataframe = add_row_from_dict(
+            self.benchmark_dataframe, dic_benchmark
+        )
+    print("\n \n self.benchmark_dataframe   : ", self.benchmark_dataframe)
+
+
+def get_results_trivially_solved(self):
+    """
+    Recuperation of optimization results for trivially solved problems
+    """
+    logger_mosek.info(
+        "Recuperation of optimization results for trivially solved problems..."
+    )
+    dic_benchmark = {
+        "network": self.network_name,
+        "model": self.name,
+        "dataset": self.dataset_name,
+        "data_index": self.data_index,
+        "label": self.ytrue,
+        "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
+        "epsilon": self.epsilon,
+        "status": "trivially_solved",
+        "iterations": 0,
+        "time": 0.0,
+        "pretreatment_time": 0.0,
+        "bound_time": self.compute_bounds_time,
+        "MATRIX_BY_LAYERS": self.MATRIX_BY_LAYERS,
+        "LAST_LAYER": self.LAST_LAYER,
+        "USE_STABLE_ACTIVES": self.use_active_neurons,
+        "USE_STABLE_INACTIVES": self.use_inactive_neurons,
+        "Nb_stable_inactives": len(self.stable_inactives_neurons),
+        "Nb_stable_actives": len(self.stable_actives_neurons),
+    }
     print("dic benchmark keys : ", dic_benchmark)
     if self.benchmark_dataframe is None:
         self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])

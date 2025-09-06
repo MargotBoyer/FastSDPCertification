@@ -9,13 +9,18 @@ import sys
 import os
 import argparse
 from typing import List
-from adversarial_attacks import PGDAttack, LPAttack, SDPAttack
+from adversarial_attacks import PGDAttack, LPAttack, SDPAttack, CrownIBP_Attack
 from bounds import compute_bounds_data
 from adv_train import (
     complex_adversarial_training_loop,
     load_adversarial_training_config,
 )
-from data import analyze_class_distribution
+from data import (
+    analyze_class_distribution,
+    EMNISTBalancedCSV,
+    emnist_fix_orientation,
+    ShiftLabels,
+)
 
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -194,7 +199,7 @@ if __name__ == "__main__":
             experiment_name=f"{args.data_modele}_{attack}_"
             + datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss"),
             log_frequency=10,
-            use_wandb=False,
+            use_wandb=True,
             yaml_file=f"networks/{args.network}.yaml",
             epsilon_to_test=epsilon_to_test,
             **config,

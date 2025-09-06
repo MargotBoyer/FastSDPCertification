@@ -1,0 +1,29 @@
+data : "concatmnist-5classes"
+train_path  : "data/datasets/MNIST/ConcatMNIST/5_classes/balanced_emnist_fashion_kmnist_train.pth"
+test_path   : "data/datasets/MNIST/ConcatMNIST/5_classes/balanced_emnist_fashion_kmnist_test.pth"
+evaluate_robustness_path : "data/datasets/MNIST/ConcatMNIST/5_classes/concatmnist_subset_1_per_class.pth"
+num_classes : 5
+# Projected Gradient Descent (PGD)
+adversarial_attack : "PGD"
+epsilon : 0.3
+epsilon_test : 0.010
+alpha : 0.01
+steps : 40
+random_start : true
+num_epochs : 100
+lr : 0.001
+batch_size : 128
+n :
+  - 784
+  - 100
+  - 100
+  - 100
+  - 100
+  - 100
+  - 100
+  - 5
+K : 7
+name_network : "concatmnist-6x100-5-classes"
+
+
+  

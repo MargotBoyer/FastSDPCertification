@@ -164,21 +164,35 @@ class Certification_Problem:
             y_pred = self.network(x)
             print("y_pred:", y_pred)
 
-            model_instance = model_class(
-                network=self.network,
-                epsilon=self.epsilon,
-                x=x,
-                ytrue=ytrue.item(),
-                data_index=i,
-                dataset_name=self.dataset_name,
-                network_name=self.network_name,
-                folder_name=f"results/benchmark/{self.title}/{title_run}",
-                **dict_infos,
-            )
+            try:
+                model_instance = model_class(
+                    network=self.network,
+                    epsilon=self.epsilon,
+                    x=x,
+                    ytrue=ytrue.item(),
+                    data_index=i,
+                    dataset_name=self.dataset_name,
+                    network_name=self.network_name,
+                    folder_name=f"results/benchmark/{self.title}/{title_run}",
+                    **dict_infos,
+                )
+                nb_actives = len(model_instance.stable_actives_neurons)
+                nb_inactives = len(model_instance.stable_inactives_neurons)
+                nb_targets = len(model_instance.ytargets)
+                print("STUDY : number of targets : ", nb_targets)
+            except Exception as e:
+                print("STUDY : Error while creating model instance:", e)
+                nb_actives = -1
+                nb_inactives = -1
+                nb_targets = 0
+                continue
 
-            nb_actives = len(model_instance.stable_actives_neurons)
-            nb_inactives = len(model_instance.stable_inactives_neurons)
-            nb_targets = len(model_instance.ytargets)
+            output_bounds_U = model_instance.U[self.network.K]
+            output_bounds_L = model_instance.L[self.network.K]
+
+            print("STUDY : output_bounds_U:", output_bounds_U)
+            print("STUDY : output_bounds_L:", output_bounds_L)
+
             model_instance.solve(verbose=True)
 
             self.benchmark = concat_dataframes_with_missing_columns(

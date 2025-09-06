@@ -135,6 +135,8 @@ class Solver:
         print("Data name in solver:", self.dataset_name)
         print("End of initialization of solver, ytrue :", self.ytrue)
         print("STABLE ACTIVES NEURONS: ", self.stable_actives_neurons)
+        self.is_trivially_solved = self.ytargets == []
+        print("STUDY: is trivially solved: ", self.is_trivially_solved)
 
     @staticmethod
     def parse_yaml(yaml_file):

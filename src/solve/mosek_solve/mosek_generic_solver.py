@@ -26,7 +26,7 @@ from ..generic_solver import Solver
 from .handler.mosek_fusion import MosekFusionHandler
 from .handler.mosek_classic.handler_classic import MosekClassicHandler
 from .run_benchmark import create_all_cuts_to_test
-from .get_variables import get_results
+from .get_variables import get_results, get_results_trivially_solved
 
 
 from tools import change_to_zero_negative_values
@@ -35,7 +35,9 @@ from tools import change_to_zero_negative_values
 logger_mosek = logging.getLogger("Mosek_logger")
 
 
-@add_functions_to_class(create_all_cuts_to_test, get_results)
+@add_functions_to_class(
+    create_all_cuts_to_test, get_results, get_results_trivially_solved
+)
 class MosekSolver(Solver):
     """
     A solver that uses MOSEK to solve the optimization problem.
@@ -323,7 +325,10 @@ class MosekSolver(Solver):
         Solve the optimization problem using MOSEK.
         """
         print("VERBOSE IN SOLVE : ", verbose)
-
+        if self.is_trivially_solved:
+            print("STUDY : Trivially solved problem, no need to run optimization.")
+            self.get_results_trivially_solved()
+            return True
         for cuts in self.cuts_to_test:
             print("Testing cuts: ", cuts)
 
