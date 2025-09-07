@@ -9,13 +9,14 @@ import logging
 import sys
 import gurobipy as gp
 from gurobipy import GRB
+import pandas as pd
 
 import sys
 from functools import partial
 
 
 from ..generic_solver import Solver
-from tools import get_project_path
+from tools import get_project_path, add_row_from_dict
 from .callback import SolutionCallback, CallbackData, mycallback
 from .analyser import analyze_model
 
@@ -134,6 +135,31 @@ class GurobiSolver(Solver):
         else:
             opt = self.m.ObjVal
             print("UNKNOWN STATUS : Optimal objective value: ", opt)
+        dic_benchmark = {
+            "network": self.network_name,
+            "model": self.name,
+            "dataset": self.dataset_name,
+            "data_index": self.data_index,
+            "label": self.ytrue,
+            "label_predicted": self.network.label(self.x),
+            "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
+            "epsilon": self.epsilon,
+            "status": self.m.Status,
+            "nb_nodes": self.nb_nodes,
+            "time": self.time_solving,
+            "bound_time": self.compute_bounds_time,
+            "LAST_LAYER": self.LAST_LAYER,
+            "USE_STABLE_ACTIVES": self.use_active_neurons,
+            "USE_STABLE_INACTIVES": self.use_inactive_neurons,
+            "Nb_stable_inactives": len(self.stable_inactives_neurons),
+            "Nb_stable_actives": len(self.stable_actives_neurons),
+        }
+        if self.benchmark_dataframe is None:
+            self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
+        else:
+            self.benchmark_dataframe = add_row_from_dict(
+                self.benchmark_dataframe, dic_benchmark
+            )
 
     def write_model(self):
         """
@@ -181,7 +207,7 @@ class GurobiSolver(Solver):
         else:
             self.m.setParam("LogFile", get_project_path("results/Gurobi_logger.log"))
 
-    def solve(self, verbose: bool = False):
+    def solve(self, verbose: bool = False, **kwargs):
         """
         Solve the optimization problem using MOSEK.
         """

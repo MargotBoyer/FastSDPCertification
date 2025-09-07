@@ -320,12 +320,12 @@ class MosekSolver(Solver):
             self.handler.cleanup_mosek()
             return self.handler.is_robust
 
-    def solve(self, verbose: bool = False):
+    def solve(self, verbose: bool = False, only_bounds: bool = False):
         """
         Solve the optimization problem using MOSEK.
         """
         print("VERBOSE IN SOLVE : ", verbose)
-        if self.is_trivially_solved:
+        if self.is_trivially_solved or only_bounds:
             print("STUDY : Trivially solved problem, no need to run optimization.")
             self.get_results_trivially_solved()
             return True

@@ -193,7 +193,7 @@ class Certification_Problem:
             print("STUDY : output_bounds_U:", output_bounds_U)
             print("STUDY : output_bounds_L:", output_bounds_L)
 
-            model_instance.solve(verbose=True)
+            model_instance.solve(verbose=True, only_bounds=True)
 
             self.benchmark = concat_dataframes_with_missing_columns(
                 self.benchmark, model_instance.benchmark_dataframe

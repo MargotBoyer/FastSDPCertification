@@ -70,7 +70,9 @@ class Solver:
         if "Lan" in self.__class__.__name__ and self.ytarget is not None:
             self.ytargets = [self.ytarget]
         else:
-            self.ytargets = [j for j in range(self.n[self.K]) if j != self.ytrue]
+            self.ytargets = [
+                j for j in range(self.n[self.K]) if j != int(self.network.label(x))
+            ]
 
         self.bounds_method = kwargs.get("bounds_method")
         self.L = L
