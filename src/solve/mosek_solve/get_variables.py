@@ -427,7 +427,7 @@ def get_results(self, cuts: List, verbose: bool = False):
     print("\n \n self.benchmark_dataframe   : ", self.benchmark_dataframe)
 
 
-def get_results_trivially_solved(self):
+def get_results_trivially_solved(self, status: str = "trivially_solved"):
     """
     Recuperation of optimization results for trivially solved problems
     """
@@ -443,7 +443,7 @@ def get_results_trivially_solved(self):
         "label_predicted": self.network.label(self.x),
         "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
         "epsilon": self.epsilon,
-        "status": "trivially_solved",
+        "status": status,
         "iterations": 0,
         "time": 0.0,
         "pretreatment_time": 0.0,

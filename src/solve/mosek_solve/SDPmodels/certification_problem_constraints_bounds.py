@@ -12,10 +12,8 @@ def quad_bounds(self):
     for k in range(self.K + 1 if self.LAST_LAYER else self.K):
         print(f"Adding quadratic bounds constraint for layer {k}")
         for j in range(self.n[k]):
-            if (k, j) in self.stable_inactives_neurons or (
-                k,
-                j,
-            ):
+            if (k, j) in self.stable_inactives_neurons:
+                print(f"Skipping in QUAD inactive neuron at layer {k}, neuron {j}")
                 continue
             elif (k, j) in self.stable_actives_neurons and (
                 not self.keep_penultimate_actives or k != self.K - 1

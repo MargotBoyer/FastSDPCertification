@@ -140,12 +140,12 @@ class Certification_Problem:
             #     continue
             # assert ytrue == y, "ytrue should match the label y"
             print("x  shape:", x.shape)
-            # if i <= 40 or i >= 45:
-            #     # print(
-            #     #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
-            #     # )
-            #     print("Skipping data sample ", i + 1, "for testing purposes.")
-            #     continue
+            if i <= 91:
+                # print(
+                #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
+                # )
+                print("Skipping data sample ", i + 1, "for testing purposes.")
+                continue
             print("i : ", i)
             # exit()
             x = x.view(-1)  # Ensure x is a 2D tensor
@@ -193,7 +193,7 @@ class Certification_Problem:
             print("STUDY : output_bounds_U:", output_bounds_U)
             print("STUDY : output_bounds_L:", output_bounds_L)
 
-            model_instance.solve(verbose=True, only_bounds=True)
+            model_instance.solve(verbose=True, only_bounds=False)
 
             self.benchmark = concat_dataframes_with_missing_columns(
                 self.benchmark, model_instance.benchmark_dataframe

@@ -102,7 +102,7 @@ class LanSDP(MosekSolver):
             self.all_Mc_Cormick_all_layers()
 
         if self.MATRIX_BY_LAYERS:
-            self.matrix_by_layers_rec(only_linear_constraints=True)
+            self.matrix_by_layers_rec(only_linear_constraints=False)
 
         self.first_term_equal_zero()
 

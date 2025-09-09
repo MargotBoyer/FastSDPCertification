@@ -1,14 +1,14 @@
 data :
   name : "mnist"
-  path :  "data/datasets/MNIST/ConcatMNIST/5_classes/concatmnist_subset_1_per_class.pth"
-  num_classes : 5
-  num_samples : 5
+  path :  "data/datasets/MNIST/ConcatMNIST/67_classes/concatmnist_subset_1_per_class.pth"
+  num_classes : 67
+  num_samples : 67
 
-epsilon : 0.04
+epsilon : 0.05
 
 network :
-  name : "concatmnist-6x100-5-classes"
-  path : "data/models/concatmnist_adv_concatmnist-6x100-5-classes.pt"
+  name : "concatmnist-6x100-67-classes"
+  path : "data/models/concatmnist_adv_concatmnist-6x100-67-classes.pt"
   K : 7
   n : 
     - 784
@@ -18,7 +18,7 @@ network :
     - 100
     - 100
     - 100
-    - 5
+    - 67
 
 
 

@@ -89,7 +89,7 @@ class MosekClassicHandler:
         """
         print("Initializing MosekClassicHandler")
         self.MATRIX_BY_LAYERS = kwargs.get("MATRIX_BY_LAYERS", False)
-        
+
         self.LAST_LAYER = kwargs.get("LAST_LAYER", False)
         self.BETAS = kwargs.get("BETAS", False)
         self.BETAS_Z = kwargs.get("BETAS_Z", False)
@@ -169,6 +169,7 @@ class MosekClassicHandler:
         self.task.putdouparam(mosek.dparam.intpnt_tol_rel_gap, 1e-3)
         self.task.putdouparam(mosek.dparam.intpnt_tol_pfeas, 1e-3)
         self.task.putdouparam(mosek.dparam.intpnt_tol_dfeas, 1e-3)
+
         # Limiter le temps et les itérations
         # self.task.putdouparam(mosek.dparam.optimizer_max_time, 7200)
         # self.task.putintparam(mosek.iparam.intpnt_max_iterations, 200)

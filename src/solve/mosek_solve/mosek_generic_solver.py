@@ -325,9 +325,13 @@ class MosekSolver(Solver):
         Solve the optimization problem using MOSEK.
         """
         print("VERBOSE IN SOLVE : ", verbose)
-        if self.is_trivially_solved or only_bounds:
+        if self.is_trivially_solved:
             print("STUDY : Trivially solved problem, no need to run optimization.")
-            self.get_results_trivially_solved()
+            self.get_results_trivially_solved(status="trivially_solved")
+            return True
+        elif only_bounds:
+            print("STUDY : Only bounds requested, no need to run optimization.")
+            self.get_results_trivially_solved(status="only_bounds")
             return True
         for cuts in self.cuts_to_test:
             print("Testing cuts: ", cuts)

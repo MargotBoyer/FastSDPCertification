@@ -83,7 +83,7 @@ def ReLU_constraint_Lan(
         print(f"Adding ReLU constraints for layer {k}")
         for j in range(self.n[k]):
             if (k, j) in self.stable_inactives_neurons:
-                # print(f"Skipping stable inactive neuron ({k}, {j})")
+                print(f"Skipping in RELU stable inactive neuron ({k}, {j})")
                 continue
             if (k, j) in self.stable_actives_neurons and (
                 not self.keep_penultimate_actives or k != self.K - 1

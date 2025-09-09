@@ -27,7 +27,7 @@ class ClassicLP(GurobiSolver):
         self,
         **kwargs,
     ):
-        #print("kwargs in init LP : ", kwargs)
+        # print("kwargs in init LP : ", kwargs)
 
         super().__init__(certification_model_name="LP", **kwargs)
         self.possible_targets = [
@@ -35,7 +35,7 @@ class ClassicLP(GurobiSolver):
         ]
         if "ytarget" in kwargs:
             self.ytarget = kwargs["ytarget"]
-        else:
+        elif not self.is_trivially_solved:
             self.ytarget = np.random.choice(self.possible_targets)
 
         print("LP attack initialized with ytarget:", self.ytarget)

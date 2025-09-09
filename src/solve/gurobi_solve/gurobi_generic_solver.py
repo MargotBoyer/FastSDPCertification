@@ -144,6 +144,7 @@ class GurobiSolver(Solver):
             "label_predicted": self.network.label(self.x),
             "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
             "epsilon": self.epsilon,
+            "optimal_value": self.opt if self.m.Status == GRB.OPTIMAL else None,
             "status": self.m.Status,
             "nb_nodes": self.nb_nodes,
             "time": self.time_solving,
@@ -155,11 +156,42 @@ class GurobiSolver(Solver):
             "Nb_stable_actives": len(self.stable_actives_neurons),
         }
         if self.benchmark_dataframe is None:
+            print("STUDY : creating dataframe")
             self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
         else:
             self.benchmark_dataframe = add_row_from_dict(
                 self.benchmark_dataframe, dic_benchmark
             )
+
+    def get_results_trivially_solved(self, status: str = "trivially_solved"):
+        """
+        Recuperation of optimization results for trivially solved problems
+        """
+        dic_benchmark = {
+            "network": self.network_name,
+            "model": self.name,
+            "dataset": self.dataset_name,
+            "data_index": self.data_index,
+            "label": self.ytrue,
+            "label_predicted": self.network.label(self.x),
+            "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
+            "epsilon": self.epsilon,
+            "status": status,
+            "bound_time": self.compute_bounds_time,
+            "LAST_LAYER": self.LAST_LAYER,
+            "USE_STABLE_ACTIVES": self.use_active_neurons,
+            "USE_STABLE_INACTIVES": self.use_inactive_neurons,
+            "Nb_stable_inactives": len(self.stable_inactives_neurons),
+            "Nb_stable_actives": len(self.stable_actives_neurons),
+        }
+        print("dic benchmark keys : ", dic_benchmark)
+        if self.benchmark_dataframe is None:
+            self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
+        else:
+            self.benchmark_dataframe = add_row_from_dict(
+                self.benchmark_dataframe, dic_benchmark
+            )
+        print("\n \n self.benchmark_dataframe   : ", self.benchmark_dataframe)
 
     def write_model(self):
         """
@@ -207,10 +239,18 @@ class GurobiSolver(Solver):
         else:
             self.m.setParam("LogFile", get_project_path("results/Gurobi_logger.log"))
 
-    def solve(self, verbose: bool = False, **kwargs):
+    def solve(self, verbose: bool = False, only_bounds: bool = False, **kwargs):
         """
         Solve the optimization problem using MOSEK.
         """
+        if self.is_trivially_solved:
+            print("STUDY : Trivially solved problem, no need to run optimization.")
+            self.get_results_trivially_solved(status="trivially_solved")
+            return True
+        elif only_bounds:
+            print("STUDY : Only bounds requested, no need to run optimization.")
+            self.get_results_trivially_solved(status="only_bounds")
+            return True
         if "Lan" in self.__class__.__name__:
             for ytarget in self.ytargets:
                 self.ytarget = ytarget
