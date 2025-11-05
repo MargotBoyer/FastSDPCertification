@@ -1,0 +1,26 @@
+data : "moon"
+train_path  : "data/datasets/moon_dataset.pth"
+test_path   : "data/datasets/moon_dataset.pth"
+evaluate_robustness_path : "data/datasets/moon_dataset.pth"
+num_classes : 2
+# Projected Gradient Descent (PGD)
+adversarial_attack : "PGD"
+epsilon : 0.3
+epsilon_test : 0.040
+alpha : 0.01
+steps : 40
+random_start : true
+num_epochs : 20
+lr : 0.001
+batch_size : 128
+K : 4
+n : 
+  - 2
+  - 4
+  - 10
+  - 6
+  - 2
+name_network :  "moon_nn"
+
+
+  

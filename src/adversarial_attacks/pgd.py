@@ -73,6 +73,7 @@ class PGDAttack:
                 loss = F.cross_entropy(outputs, target_labels)
                 loss = -loss  # On veut minimiser, donc on prend l'opposé
             else:
+                print("NOT TARGETED ATTACK")
                 # Attaque non-ciblée : maximiser la loss pour la vraie classe
                 loss = F.cross_entropy(outputs, labels)
 

@@ -183,7 +183,7 @@ class Equivalent_Neurons_Index:
         """
 
         key = _get_key_from_layer_neuron_(layer=layer, neuron=neuron, M=self.M)
-        print(f"Creating dict for neuron {neuron} at layer {layer} with key {key}")
+        #print(f"Creating dict for neuron {neuron} at layer {layer} with key {key}")
         assert key not in self.equivalent_neurons, f"Index {key} already exists."
         self.equivalent_neurons[key] = {
             "weights_front": Dict.empty(

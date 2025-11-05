@@ -54,7 +54,6 @@ class MosekSolver(Solver):
         **kwargs,
     ):
         super().__init__(LAST_LAYER=LAST_LAYER, **kwargs)
-        print("ytrue in MosekSolver: ", self.ytrue)
 
         self.MATRIX_BY_LAYERS = MATRIX_BY_LAYERS
         self.keep_penultimate_actives = kwargs.get("keep_penultimate_actives", None)
@@ -159,16 +158,19 @@ class MosekSolver(Solver):
 
     def run_optimization(self, cuts: Dict, verbose: bool = False):
         try:
-            print("STUDY : RLT_prop in run_optimization: ", self.RLT_prop)
-            print("STUDY : Beginnning of run_optimization with cuts: ", cuts)
+            if verbose : 
+                print("STUDY : RLT_prop in run_optimization: ", self.RLT_prop)
+                print("STUDY : Beginnning of run_optimization with cuts: ", cuts)
             # self.handler.renew_solver()
-            print("STUDY : Initiated solver.")
             start_pretreatment_time = time.time()
-            print("Initializing ENV...")
-            self.handler.initiate_env()
-            print("Intializing ENV : DONE.")
+            if verbose : 
+                print("Initializing ENV...")
+            self.handler.initiate_env(verbose)
+            if verbose : 
+                print("Intializing ENV : DONE.")
             self.handler.print_solver_info(verbose)
-            print("STUDY : Handler initialized.")
+            if verbose :
+                print("STUDY : Handler initialized.")
             self.add_objective()
             # print(
             #     "Objective indexes matrices: ",
@@ -186,18 +188,23 @@ class MosekSolver(Solver):
             #     "Objective indexes variables value: ",
             #     self.handler.Objective.list_values,
             # )
-            print("STUDY ; Objective created.")
+            if verbose : 
+                print("STUDY ; Objective created.")
             self.handler.initialize_variables()
-            print("STUDY : Variables initialized.")
-            print("Adding constraints to the task...")
+            self.handler.print_num_variables()
+            if verbose : 
+                print("STUDY : Variables initialized.")
+                print("Adding constraints to the task...")
             time_1 = time.time()
             self.add_constraints(cuts)  # Constraints must be added after variables
-            print("STUDY : Constraints added.")
+            if verbose: 
+                print("STUDY : Constraints added.")
             time_2 = time.time()
 
             # print(self.Constraints)
             self.handler.initialize_constraints()
-            print("STUDY : Constraints initialized.")
+            if verbose :
+                print("STUDY : Constraints initialized.")
             # # STATISTICS ON PARAMETER VALUES
             # (
             #     histogram_coeff,
@@ -259,21 +266,30 @@ class MosekSolver(Solver):
             # exit()
 
             self.handler.Objective.add_to_task()
-            print("STUDY : Objective added to the task.")
+            if verbose : 
+                print("STUDY : Objective added to the task.")
             self.handler.Constraints.add_to_task()
-            print("STUDY : Constraints added to the task.")
-
+            if verbose :
+                print("STUDY : Constraints added to the task.")
+            # self.handler.write_model(
+            #     cuts,
+            #     RLT_prop=self.RLT_prop,
+            #     data_index=self.data_index,
+            #     ytarget=self.ytarget,
+            # )
             self.handler.define_objective_sense()
-            print("STUDY : Objective sense defined.")
-            # self.handler.write_model(cuts)
+            if verbose :
+                print("STUDY : Objective sense defined.")
+
             end_pretreatment_time = time.time()
             self.handler.time_pretreatment = (
                 end_pretreatment_time - start_pretreatment_time
             )
-            print(
-                "Pretreatment computing time to add constraints: ",
-                self.handler.time_pretreatment,
-            )
+            if verbose:
+                print(
+                    "STUDY : Pretreatment computing time: ",
+                    self.handler.time_pretreatment,
+                )
             start_time = time.time()
             self.handler.optimize()
             end_time = time.time()
@@ -284,39 +300,39 @@ class MosekSolver(Solver):
             )
             # exit()
             # print("Tracker : ", self.handler.tracker.get_arrays())
-            print("Getting results ...")
+            if verbose :
+                print("CALLBACK : Getting results ...")
             time_results_start = time.time()
+
             results = self.get_results(cuts, verbose)
             time_results_end = time.time()
-            print(
-                "Time taken to get results: %s seconds",
-                time_results_end - time_results_start,
-            )
-            print("results obtained: ", results)
-            print("x : ", self.x)
-            print(
-                "self.use_inactive_neurons: ",
-                self.use_inactive_neurons,
-                "self.use_active_neurons: ",
-                self.use_active_neurons,
-            )
-            print(
-                "Inactive neurons : ",
-                self.stable_inactives_neurons,
-                "  Active neurons : ",
-                self.stable_actives_neurons,
-            )
-            # print("self.L : ", self.L)
-            # print("self.U : ", self.U)
-            # print("self.network : ", self.network)
-            # print("self.W : ", self.W)
-            # print("self.b : ", self.b)
-            # print("Run success, cleaning up MOSEK environment.")
-            # print("results : ", results)
-            print("is robust in run_optimization: ", self.handler.is_robust)
+            if verbose :
+                print(
+                    "Time taken to get results: %s seconds",
+                    time_results_end - time_results_start,
+                )
+                print("results obtained: ", results)
+                print("x : ", self.x)
+                print(
+                    "self.use_inactive_neurons: ",
+                    self.use_inactive_neurons,
+                    "self.use_active_neurons: ",
+                    self.use_active_neurons,
+                )
+                print(
+                    "Inactive neurons : ",
+                    self.stable_inactives_neurons,
+                    "  Active neurons : ",
+                    self.stable_actives_neurons,
+                )
+                print("is robust in run_optimization: ", self.handler.is_robust)
             return self.handler.is_robust
+        except Exception as e:
+            if verbose : 
+                print("ERROR : An error occurred during optimization:", str(e))
+            logger_mosek.error("An error occurred during optimization: %s", str(e))
+            return False
         finally:
-
             self.handler.cleanup_mosek()
             return self.handler.is_robust
 
@@ -326,34 +342,43 @@ class MosekSolver(Solver):
         """
         print("VERBOSE IN SOLVE : ", verbose)
         if self.is_trivially_solved or only_bounds:
-            print("STUDY : Trivially solved problem, no need to run optimization.")
+            if verbose : 
+                print("STUDY : Trivially solved problem, no need to run optimization.")
             self.get_results_trivially_solved()
             return True
         for cuts in self.cuts_to_test:
-            print("Testing cuts: ", cuts)
+            if verbose :
+                print("Testing cuts: ", cuts)
 
             if "Lan" in self.__class__.__name__:
-                print("Lan parser ")
+                if verbose : 
+                    print("CALLBACK ytargets : ", self.ytargets)
                 for ytarget in self.ytargets:
+
                     for RLT_prop in self.RLT_props:
-                        print(f"Testing RLT_prop for ytarget {ytarget} ! ", RLT_prop)
+
+                        if verbose :
+                            print(f"Testing RLT_prop for ytarget {ytarget} ! ", RLT_prop)
                         self.RLT_prop = RLT_prop
                         self.ytarget = ytarget
-                        print("ytarget : ", ytarget)
                         if self.run_optimization(cuts, verbose):
-                            print("Robust solution found for ytarget:", ytarget)
+                            if verbose :
+                                print("Robust solution found for ytarget:", ytarget)
                             break
                         else:
                             print("No robust solution found for ytarget:", ytarget)
             else:
                 for RLT_prop in self.RLT_props:
-                    print(f"Testing RLT_prop ! ", RLT_prop)
+                    if verbose :
+                        print(f"Testing RLT_prop ! ", RLT_prop)
                     self.RLT_prop = RLT_prop
                     if self.run_optimization(cuts, verbose):
-                        print("Robust solution found for RLT_prop:", RLT_prop)
+                        if verbose :
+                            print("Robust solution found for RLT_prop:", RLT_prop)
                         break
                     else:
-                        print("No robust solution found for RLT_prop:", RLT_prop)
+                        if verbose : 
+                            print("No robust solution found for RLT_prop:", RLT_prop)
 
     def __str__(self):
         """

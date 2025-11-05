@@ -17,9 +17,9 @@ from adv_train import (
 )
 from data import (
     analyze_class_distribution,
-    EMNISTBalancedCSV,
-    emnist_fix_orientation,
-    ShiftLabels,
+    # EMNISTBalancedCSV,
+    # emnist_fix_orientation,
+    # ShiftLabels,
 )
 
 
@@ -74,6 +74,7 @@ def evaluate(model, testloader):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     print(f"Accuracy: {100 * correct / total}%")
+    return 100 * correct / total
 
 
 if __name__ == "__main__":
@@ -100,20 +101,20 @@ if __name__ == "__main__":
     config = load_adversarial_training_config(f"config/networks/{args.network}.yaml")
     train_dataset = torch.load(get_project_path(config["train_path"]))  # ["dataset"]
 
-    print("Len of train_dataset: ", len(train_dataset))
-    print("train dataset: ", train_dataset)
+    # print("Len of train_dataset: ", len(train_dataset))
+    # print("train dataset: ", train_dataset)
 
-    analyze_class_distribution(
-        train_dataset, dataset_name=f"Train Dataset {args.data_modele}"
-    )
+    # analyze_class_distribution(
+    #     train_dataset, dataset_name=f"Train Dataset {args.data_modele}"
+    # )
 
     test_dataset = torch.load(get_project_path(config["test_path"]))  # ["dataset"]
-    print("Len of test_dataset: ", len(test_dataset))
+    # print("Len of test_dataset: ", len(test_dataset))
 
-    analyze_class_distribution(
-        test_dataset, dataset_name=f"Test Dataset {args.data_modele}"
-    )
-    print("")
+    # analyze_class_distribution(
+    #     test_dataset, dataset_name=f"Test Dataset {args.data_modele}"
+    # )
+    # print("")
     robust_to_test_dataset = torch.load(
         get_project_path(config["evaluate_robustness_path"])
     )["dataset"]

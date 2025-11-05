@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from typing import List
 import mosek
 from ..indexes_matrices import (
@@ -148,22 +149,38 @@ class ConstraintsClassic(CommonConstraints):
         """
         Add the constraint to the task.
         """
+        if verbose :
+            print(f"CALLBACK : Number of constraints : {len(self.list_cstr)}")
         logger_mosek.info(f"Adding {len(self.list_cstr)} constraints to the task...")
         for ind_cstr in range(len(self.list_cstr)):
             name = self.list_cstr[ind_cstr]["name"]
+            if ind_cstr % 10000 == 0:
+                print(
+                    f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
+                )
+            elif ind_cstr >= int(0.99 * len(self.list_cstr)) and ind_cstr % 100 == 0:
+                print(
+                    f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
+                )
+            elif ind_cstr >= int(0.9995 * len(self.list_cstr)):
+                print(
+                    f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
+                )
             i = self.list_cstr[ind_cstr]["i"]
             j = self.list_cstr[ind_cstr]["j"]
             num_matrix = self.list_cstr[ind_cstr]["num_matrix"]
             value = self.list_cstr[ind_cstr]["value"]
-            print(
-                f"Adding to task constraint {name} with num matrix: {num_matrix.size} , i= {i.size}, j = {j.size}, value = {value.size}"
-            )
+            if self.verbose :
+                print(
+                    f"Adding to task constraint {name} with num matrix: {num_matrix.size} , i= {i.size}, j = {j.size}, value = {value.size}"
+                )
             assert (
                 len(num_matrix) == len(i) == len(j) == len(value)
             ), "The length of num_matrix, i, j, and value must be the same."
 
             self.task.putbarablocktriplet(
-                ind_cstr * np.ones(len(self.list_cstr[ind_cstr]["num_matrix"]), dtype=np.int32),
+                ind_cstr
+                * np.ones(len(self.list_cstr[ind_cstr]["num_matrix"]), dtype=np.int32),
                 self.list_cstr[ind_cstr]["num_matrix"],
                 self.list_cstr[ind_cstr]["i"],
                 self.list_cstr[ind_cstr]["j"],
@@ -175,3 +192,11 @@ class ConstraintsClassic(CommonConstraints):
                 self.list_cstr[ind_cstr]["lb"],
                 self.list_cstr[ind_cstr]["ub"],
             )
+
+            if ind_cstr >= int(0.9995 * len(self.list_cstr)):
+                print(
+                    f"CALLBACK : constraint {ind_cstr} / {len(self.list_cstr)} : {name} successfully addded to the task."
+                )
+            
+           
+        print("STUDY : All constraints added to the task.")

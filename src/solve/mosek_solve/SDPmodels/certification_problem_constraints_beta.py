@@ -12,7 +12,9 @@ def discrete_betas(self):
         if j == self.ytrue:
             continue
         # beta_j = beta_j²
-        if self.handler.Constraints.new_constraint(f"beta_{j,j} = beta_{j}"):
+        if self.handler.Constraints.new_constraint(
+            f"beta_{j,j} = beta_{j}", label="same_for_data"
+        ):
             continue
         self.handler.Constraints.add_quad_variable(
             var1="beta",
@@ -35,7 +37,7 @@ def sum_betas_equals_1(self):
     """
     assert self.BETAS
 
-    if self.handler.Constraints.new_constraint("sum(beta)=1"):
+    if self.handler.Constraints.new_constraint("sum(beta)=1", label="same_for_data"):
         return
     for j in self.ytargets:
         if j == self.ytrue:
@@ -74,7 +76,7 @@ def McCormick_beta_z(self, layer: int):
             )
             # *************************************************
             if self.handler.Constraints.new_constraint(
-                f"T_{(layer, i),j}  <= U_{layer, i} beta_{j}"
+                f"T_{(layer, i),j}  <= U_{layer, i} beta_{j}", label="same_for_data"
             ):
                 continue
 
@@ -119,7 +121,8 @@ def McCormick_beta_z(self, layer: int):
 
             # ****************************************************
             if self.handler.Constraints.new_constraint(
-                f"T_{(layer, i),j}  >= U_{layer, i} beta_{j} + z_{layer, i} - U_{layer, i}"
+                f"T_{(layer, i),j}  >= U_{layer, i} beta_{j} + z_{layer, i} - U_{layer, i}",
+                label="same_for_data",
             ):
                 continue
             self.handler.Constraints.add_quad_variable(
@@ -149,7 +152,9 @@ def McCormick_beta_z(self, layer: int):
             )
 
             # ****************************************************
-            if self.handler.Constraints.new_constraint(f"T_{(layer, i),j}  >= 0"):
+            if self.handler.Constraints.new_constraint(
+                f"T_{(layer, i),j}  >= 0", label="same_for_data"
+            ):
                 continue
             self.handler.Constraints.add_quad_variable(
                 var1="beta",
@@ -174,7 +179,7 @@ def McCormick_beta_z_with_penultimate_layer(self):
             continue
 
         if self.handler.Constraints.new_constraint(
-            f"z_{self.K,j} beta_{j} >= L_{self.K,j} beta_{j}"
+            f"z_{self.K,j} beta_{j} >= L_{self.K,j} beta_{j}", label="same_for_data"
         ):
             continue
         for i in range(self.n[self.K - 1]):
@@ -203,7 +208,7 @@ def McCormick_beta_z_with_penultimate_layer(self):
 
         # *************************************************
         if self.handler.Constraints.new_constraint(
-            f"z_{self.K,j} beta_{j} <= U_{self.K,j} beta_{j}"
+            f"z_{self.K,j} beta_{j} <= U_{self.K,j} beta_{j}", label="same_for_data"
         ):
             continue
         for i in range(self.n[self.K - 1]):
@@ -232,7 +237,8 @@ def McCormick_beta_z_with_penultimate_layer(self):
 
         # *************************************************
         if self.handler.Constraints.new_constraint(
-            f"z_{self.K,j} beta_{j} <= z_{self.K,j} + L_{self.K,j} beta_{j} - L_{self.K,j}"
+            f"z_{self.K,j} beta_{j} <= z_{self.K,j} + L_{self.K,j} beta_{j} - L_{self.K,j}",
+            label="same_for_data",
         ):
             continue
         for i in range(self.n[self.K - 1]):
@@ -271,7 +277,8 @@ def McCormick_beta_z_with_penultimate_layer(self):
 
         # *************************************************
         if self.handler.Constraints.new_constraint(
-            f"z_{self.K,j} beta_{j} <= z_{self.K,j} + U_{self.K,j} beta_{j} - U_{self.K,j}"
+            f"z_{self.K,j} beta_{j} <= z_{self.K,j} + U_{self.K,j} beta_{j} - U_{self.K,j}",
+            label="same_for_data",
         ):
             continue
         for i in range(self.n[self.K - 1]):
@@ -325,7 +332,7 @@ def betai_betaj(self):
             if self.BETAS_Z:
                 # beta_j1 * beta_j2 = 0
                 if self.handler.Constraints.new_constraint(
-                    f"betaibetaj - beta_{j1} * beta_{j2} = 0"
+                    f"betaibetaj - beta_{j1} * beta_{j2} = 0", label="same_for_data"
                 ):
                     continue
                 self.handler.Constraints.add_quad_variable(
@@ -341,7 +348,7 @@ def betai_betaj(self):
             else:
                 # beta_j1 * beta_j2 >= 0
                 if self.handler.Constraints.new_constraint(
-                    f"betaibetaj - beta_{j1} * beta_{j2} >= 0"
+                    f"betaibetaj - beta_{j1} * beta_{j2} >= 0", label="same_for_data"
                 ):
                     continue
                 self.handler.Constraints.add_quad_variable(
@@ -358,7 +365,8 @@ def betai_betaj(self):
 
                 # beta_j1 * beta_j2 >= betaj1 + betaj2 - 1
                 if self.handler.Constraints.new_constraint(
-                    f"betaibetaj - beta_{j1} beta_{j2} >= beta_{j1} + beta_{j2} - 1"
+                    f"betaibetaj - beta_{j1} beta_{j2} >= beta_{j1} + beta_{j2} - 1",
+                    label="same_for_data",
                 ):
                     continue
                 self.handler.Constraints.add_quad_variable(
@@ -384,7 +392,8 @@ def betai_betaj(self):
 
                 # beta_j1 * beta_j2 <= min(betaj1, betaj2)
                 if self.handler.Constraints.new_constraint(
-                    f"betaibetaj - beta_{j1} beta_{j2} <= min(beta_{j1}, beta_{j2})"
+                    f"betaibetaj - beta_{j1} beta_{j2} <= min(beta_{j1}, beta_{j2})",
+                    label="same_for_data",
                 ):
                     continue
                 self.handler.Constraints.add_quad_variable(
@@ -404,7 +413,8 @@ def betai_betaj(self):
                 )
 
                 if self.handler.Constraints.new_constraint(
-                    f"betaibetaj - beta_{j1} beta_{j2} <= min(beta_{j1}, beta_{j2})"
+                    f"betaibetaj - beta_{j1} beta_{j2} <= min(beta_{j1}, beta_{j2})",
+                    label="same_for_data",
                 ):
                     continue
                 self.handler.Constraints.add_quad_variable(
@@ -439,7 +449,8 @@ def z_j2_beta_j2_greater_than_zj(self):
             if j1 == self.ytrue or j1 == j2:
                 continue
             if self.handler.Constraints.new_constraint(
-                f"z_{self.K, j2} beta_{j2} >= z_{self.K,j1} - (1 - beta_{j2}) U_{j1}"
+                f"z_{self.K, j2} beta_{j2} >= z_{self.K,j1} - (1 - beta_{j2}) U_{j1}",
+                label="same_for_data",
             ):
                 continue
             for i in range(self.n[self.K - 1]):
@@ -512,7 +523,8 @@ def z_j2_beta_j2_less_than_zj(self):
             if j1 == self.ytrue or j1 == j2:
                 continue
             if self.handler.Constraints.new_constraint(
-                f"z_{j2} beta_{j2} <= (1 - beta_{j1}) z_{j1} + beta_{j2} U_{j2} - (1 - beta_{j1}) L_{j1} + beta_{j2} (L_{j1} - z_{j1})"
+                f"z_{j2} beta_{j2} <= (1 - beta_{j1}) z_{j1} + beta_{j2} U_{j2} - (1 - beta_{j1}) L_{j1} + beta_{j2} (L_{j1} - z_{j1})",
+                label="same_for_data",
             ):
                 continue
 
@@ -661,7 +673,7 @@ def zbar_sum_beta_z(self):
             name_cstr += " + "
     name_cstr += ")"
 
-    if self.handler.Constraints.new_constraint(name_cstr):
+    if self.handler.Constraints.new_constraint(name_cstr, label = "same_for_data"):
         return
     self.handler.Constraints.add_linear_variable(
         var="zbar",
@@ -705,7 +717,7 @@ def zbar_max_z(self):
         if j == self.ytrue:
             continue
         # zbar >= zj
-        if self.handler.Constraints.new_constraint(f"zbar >= z_{self.K,j}"):
+        if self.handler.Constraints.new_constraint(f"zbar >= z_{self.K,j}", label="same_for_data"):
             continue
         self.handler.Constraints.add_linear_variable(
             var="zbar",

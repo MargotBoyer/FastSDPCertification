@@ -4,6 +4,7 @@ from .utils import get_project_path
 
 def create_folder(folder_path):
     if not os.path.exists(get_project_path(folder_path)):
+        print("PATH STUDY : ", get_project_path(folder_path))
         os.makedirs(get_project_path(folder_path))
 
 

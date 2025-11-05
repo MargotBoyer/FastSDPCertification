@@ -1,3 +1,4 @@
+from tabnanny import verbose
 import numpy as np
 from typing import List, Dict
 import sys
@@ -110,6 +111,7 @@ class MosekFusionHandler:
 
         self.ytrue = kwargs.get("ytrue", None)
         self.ytarget = kwargs.get("ytarget", None)
+        print('TEST TARGET IN HANDLER : ', self.ytarget)
 
         self.epsilon = kwargs.pop("epsilon", None)
 
@@ -141,17 +143,18 @@ class MosekFusionHandler:
 
         self.vector_variables = []
 
-    def initiate_env(self):
+    def initiate_env(self, verbose : bool = False):
         """
         Initialize the model of MOSEK solver.
         """
         logger_mosek.info("Initializing MOSEK solver")
+        self.verbose = verbose
         self.model = Model(self.name)
         self.model.__enter__()
 
-        self.Constraints.reinitialize()
+        self.Constraints.reinitialize(verbose)
         self.Constraints.add_model(self.model)
-        self.Objective.reinitialize()
+        self.Objective.reinitialize(verbose)
         self.Objective.add_model(self.model)
         return self
 
@@ -202,7 +205,8 @@ class MosekFusionHandler:
                 f"Variable matrix {name} already exists. Skipping addition."
             )
         else:
-            print(f"Adding a variable matrix {name} of dimension %s", dim)
+            if verbose :
+                print(f"Adding a variable matrix {name} of dimension %s", dim)
             logger_mosek.debug(f"Variable matrix {name} added.")
             self.indexes_matrices.current_matrices_variables.append(
                 {"name": name, "dim": dim, "value": Matrices_Solutions()}
@@ -236,7 +240,7 @@ class MosekFusionHandler:
     def cleanup_mosek(self):
         """Close MOSEK environment en model."""
         logger_mosek.info("Cleaning up MOSEK environment and model \n \n \n")
-        if self.model:
+        if hasattr(self, 'model') and self.model:
             self.model.__exit__(None, None, None)
 
     def add_constraints(self):
@@ -362,7 +366,7 @@ class MosekFusionHandler:
         logger_mosek.info("Optimizing the model")
         self.model.solve()
 
-    def write_model(self, cuts: List = []):
+    def write_model(self, cuts: List = [], RLT_prop : float = 0.0, data_index : int = None, ytarget : int = None):
         """
         Write the results of the optimization to a file.
         """
@@ -370,17 +374,17 @@ class MosekFusionHandler:
         cuts_str = compute_cuts_str(cuts)
 
         print(
-            "Writing : ",
-            f"{self.folder_name}/{self.name}/{self.name}_{cuts_str}_fusion.ptf",
+            "Writing ptf : ",
+            f"{self.folder_name}/{self.name}/{self.name}_{cuts_str}_ind={data_index}_ytarget={ytarget}_RLT={RLT_prop}_fusion.ptf",
         )
 
         self.model.writeTask(
             get_project_path(
-                f"{self.folder_name}/{self.name}/{self.name}_{cuts_str}_fusion.ptf"
+                f"{self.folder_name}/{self.name}/{self.name}_{cuts_str}_ind={data_index}_ytarget={ytarget}_RLT={RLT_prop}_fusion.ptf"
             )
         )
         logger_mosek.info(
-            f"Results written to {get_project_path(f'{self.folder_name}/{self.name}/{self.name}_{cuts_str}.ptf')}"
+            f"Results written to {get_project_path(f'{self.folder_name}/{self.name}/{self.name}_{cuts_str}_ind={data_index}_ytarget={ytarget}_RLT={RLT_prop}_fusion.ptf')}"
         )
 
     def print_solver_info(self, verbose: bool = False):
@@ -417,6 +421,7 @@ class MosekFusionHandler:
         Get the solution of the optimization.
         """
         name_solution = kwargs.get("name_solution", None)
+        
         print("name solution : ", name_solution)
         psd_var = self.model.getVariable(name_solution)
         dim = kwargs.get("dim", None)

@@ -25,7 +25,7 @@ def quad_bounds(self):
             if not self.use_inactive_neurons:
                 assert self.handler.Constraints.U[k][j] >= 0
             if self.handler.Constraints.new_constraint(
-                f"z_{k,j}^2 - (U+L) z_{k,j} + UL <= 0"
+                f"z_{k,j}^2 - (U+L) z_{k,j} + UL <= 0", label = "same_for_data"
             ):
                 continue
             front_of_matrix = (
@@ -93,12 +93,23 @@ def quad_bounds(self):
 # ********************************************* McCormick ***************************************************************
 
 
-def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next):
+def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
     """
     Add 3 McCormick constraints for the inter-layer connections from the paper Lan.
     """
     # *************** Constraint (12b) in Lan **********************
-    # z_{k+1j} z_{ki} >= z_{k+1j} * L_{kj} + z_{ki} * L_{k+1j} - L_{kj} * L_{k+1j}
+
+    if self.handler.Constraints.L[k - 1][neuron_prev] < 0:
+        lb_prev = 0
+    else :
+        lb_prev = self.handler.Constraints.L[k - 1][neuron_prev]
+    if self.handler.Constraints.L[k][neuron_next] < 0:
+        lb_next = 0
+    else :  
+        lb_next = self.handler.Constraints.L[k][neuron_next]
+    # if k > 0 : 
+    #     print(f"STUDY MCCORMICK - L_{k-1} {neuron_prev}={self.handler.Constraints.L[k-1][neuron_prev]} L_{k} {neuron_next}={self.handler.Constraints.L[k][neuron_next]}")
+    # z_{k+1j} z_{ki} >= z_{k+1j} * L_{ki} + z_{ki} * L_{k+1j} - L_{ki} * L_{k+1j}
     if self.handler.Constraints.new_constraint(
         f"McCormick - Layer {k - 1}, neuron {neuron_prev}    ; Layer {k - 1+1}, neuron {neuron_next}  - 12b (RLT)"
     ):
@@ -119,20 +130,20 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next):
         var="z",
         layer=k,
         neuron=neuron_next,
-        value=-self.handler.Constraints.L[k - 1][neuron_prev],
+        value=-lb_prev,
         front_of_matrix=False,
     )
     self.handler.Constraints.add_linear_variable(
         var="z",
         layer=k - 1,
         neuron=neuron_prev,
-        value=-self.handler.Constraints.L[k][neuron_next],
+        value=-lb_next,
         front_of_matrix=True,
     )
     self.handler.Constraints.add_bound(
         bound_type=mosek.boundkey.lo,
-        bound=-self.handler.Constraints.L[k - 1][neuron_prev]
-        * self.handler.Constraints.L[k][neuron_next],
+        bound=-lb_prev
+        * lb_next,
     )
 
     # *************** Constraint (12c) in Lan **********************
@@ -163,13 +174,13 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next):
         var="z",
         layer=k - 1,
         neuron=neuron_prev,
-        value=-self.handler.Constraints.L[k][neuron_next],
+        value=-lb_next,
         front_of_matrix=True,
     )
     self.handler.Constraints.add_bound(
         bound_type=mosek.boundkey.up,
         bound=-self.handler.Constraints.U_above_zero[k - 1][neuron_prev]
-        * self.handler.Constraints.L[k][neuron_next],
+        * lb_next,
     )
 
     # z_{k - 1+1j} z_{k - 1i} <= z_{k - 1+1j} * L_{k - 1j} + z_{k - 1i} * U_{k - 1+1j} - L_{k - 1j} * U_{k - 1+1j}
@@ -192,7 +203,7 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next):
         var="z",
         layer=k,
         neuron=neuron_next,
-        value=-self.handler.Constraints.L[k - 1][neuron_prev],
+        value=-lb_prev,
         front_of_matrix=False,
     )
     self.handler.Constraints.add_linear_variable(
@@ -204,7 +215,7 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next):
     )
     self.handler.Constraints.add_bound(
         bound_type=mosek.boundkey.up,
-        bound=-self.handler.Constraints.L[k - 1][neuron_prev]
+        bound=-lb_prev
         * self.handler.Constraints.U_above_zero[k][neuron_next],
     )
 

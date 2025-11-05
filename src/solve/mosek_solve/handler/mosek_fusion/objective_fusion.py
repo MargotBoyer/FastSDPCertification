@@ -3,6 +3,8 @@ import numpy as np
 import mosek
 import os
 import sys
+import numba
+from ..variable_elements import add_dict_linear_to_elements, add_dict_quad_to_elements
 
 
 from ..indexes_matrices import Indexes_Matrixes_for_Mosek_Solver
@@ -69,7 +71,32 @@ class ObjectiveFusion(Objective):
         self.list_indexes_variables_j.append(indice_j)
         self.list_values.append(
             value
-        )  # FUSION API IS TAKING CARE OF THE DIAGONAL ELEMENTS
+        )  # FUSION API IS TAKING CARE OF THE DIAGONAL ELEMENTS  
+
+    def add_var(
+        self, dict1: numba.typed.Dict, value: float, dict2: numba.typed.Dict = None
+    ):
+        """
+        Add a variable to the current constraint.
+        ----------
+        """
+        if dict2 is None:
+            add_dict_linear_to_elements(
+                elements=self.elements.elements,
+                dict=dict1,
+                value=value,
+                nb_index=self.indexes_variables.max_index,
+            )
+        else:
+            add_dict_quad_to_elements(
+                elements=self.elements.elements,
+                dict1=dict1,
+                dict2=dict2,
+                value=value,
+                nb_index=self.indexes_variables.max_index,
+                dividing_diag=True,
+            )
+
 
     def add_model(self, model: mosek.fusion.Model):
         """
@@ -88,19 +115,14 @@ class ObjectiveFusion(Objective):
         """
         logging.info("Adding objective to the task")
         self.format_obj()
-        res = sort_lists_by_first(
-            self.list_indexes_matrixes,
-            self.list_indexes_variables_i,
-            self.list_indexes_variables_j,
-            self.list_values,
-        )
+
 
         expression = Expr.constTerm(self.constant)
         for num_matrix, i, j, value in zip(
-            res[0],
-            res[1],
-            res[2],
-            res[3],
+            self.num_matrix,
+            self.i,
+            self.j,
+            self.value,
         ):
             dim = self.indexes_matrices.get_shape_matrix(num_matrix)
             M = np.zeros((dim, dim))

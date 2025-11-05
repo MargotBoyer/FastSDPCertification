@@ -48,30 +48,23 @@ class Solver:
         self.b = round_list_depth_2(network.b)
 
         self.n = np.array(self.n)
-        print("len W : ", len(self.W))
         self.W = [np.array(self.W[k - 1]) for k in range(1, self.K + 1)]
-        print("Len W: ", len(self.W))
-        print("W[0] shape: ", self.W[0].shape)
-        print("W[1] shape: ", self.W[1].shape)
-
-        print("len b : ", len(self.b))
 
         self.b = [np.array(self.b[k]) for k in range(self.K)]
-        print("Len b: ", len(self.b))
+
 
         self.dataset = kwargs.get("dataset")
         self.epsilon = epsilon
         self.x = x
         self.ytrue = ytrue
 
-        print("ytrue in solver: ", self.ytrue)
         self.ytarget = kwargs.get("ytarget", None)
 
         if "Lan" in self.__class__.__name__ and self.ytarget is not None:
             self.ytargets = [self.ytarget]
         else:
             self.ytargets = [
-                j for j in range(self.n[self.K]) if j != int(self.network.label(x))
+                j for j in range(self.n[self.K]) if j != self.ytrue
             ]
 
         self.bounds_method = kwargs.get("bounds_method")
@@ -83,18 +76,14 @@ class Solver:
             )
 
         print(
-            "use active neurons: ",
+            "STUDY : use active neurons: ",
             use_active_neurons,
             "use inactive neurons: ",
             use_inactive_neurons,
         )
 
-        print("L shape: ", len(self.L), " U shape: ", len(self.U))
         self.L = [np.array(self.L[k]) for k in range(self.K + 1)]
         self.U = [np.array(self.U[k]) for k in range(self.K + 1)]
-        print("L[0] shape: ", self.L[0].shape)
-        print("U[0] shape: ", self.U[0].shape)
-        print("len L: ", len(self.L), " len U: ", len(self.U))
 
         self.use_inactive_neurons = use_inactive_neurons
         self.use_active_neurons = use_active_neurons
@@ -102,6 +91,13 @@ class Solver:
             use_active_neurons=use_active_neurons,
             use_inactive_neurons=use_inactive_neurons,
         )
+        # print('STUDY in generic solver: stable inactive neurons: ', self.stable_inactives_neurons)
+        # print('STUDY in generic solver: stable active neurons: ', self.stable_actives_neurons)
+        # for k in range(len(self.L)):
+        #     for j in range(len(self.L[k])):
+        #         self.L[k][j] -= 1
+        #         self.U[k][j] += 1
+
 
         self.U_above_zero = change_to_zero_negative_values(
             self.U, dim=2
@@ -121,12 +117,9 @@ class Solver:
         self.name = kwargs.get("certification_model_name")
 
         self.folder_name = kwargs.get("folder_name", None)
-        print("folder name dans certification data  apres kwargs: ", self.folder_name)
 
         if self.folder_name is None:
             self.folder_name = "results"
-
-        print("\n \n folder name dans certification data : ", self.folder_name)
 
         create_folder(f"{self.folder_name}/{self.name}")
 
@@ -134,9 +127,7 @@ class Solver:
         self.data_index = kwargs.get("data_index", 0)
         self.network_name = kwargs.get("network_name", "ReLUNN")
         self.dataset_name = kwargs.get("dataset_name")
-        print("Data name in solver:", self.dataset_name)
-        print("End of initialization of solver, ytrue :", self.ytrue)
-        print("STABLE ACTIVES NEURONS: ", self.stable_actives_neurons)
+
         self.is_trivially_solved = self.ytargets == []
         print("STUDY: is trivially solved: ", self.is_trivially_solved)
 

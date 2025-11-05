@@ -67,7 +67,7 @@ class CommonConstraints(VariablesCall):
             raise ValueError("No current constraint. Please create a new one.")
         else:
             name = self.list_cstr[self.current_num_constraint]["name"]
-            print("Validating current constraint name : ", name)
+            # print("Validating current constraint name : ", name)
             if self.list_cstr[self.current_num_constraint]["bound_type"] is None:
                 raise ValueError(
                     "No bound type for the current constraint. Please set a bound type."
@@ -195,7 +195,8 @@ class CommonConstraints(VariablesCall):
         """
         Format the constraint to be added to the task : adds values of parameters for the same variables.
         """
-        print("Formatting constraint", self.current_num_constraint)
+        if self.verbose:
+            print("Formatting constraint", self.current_num_constraint)
 
         i, j, num_matrix, val = self.list_cstr[self.current_num_constraint][
             "elements"
@@ -206,7 +207,8 @@ class CommonConstraints(VariablesCall):
         self.list_cstr[self.current_num_constraint]["num_matrix"] = num_matrix
         self.list_cstr[self.current_num_constraint]["value"] = val
 
-        print(f"Formatted constraint {self.current_num_constraint} ")
+        if self.verbose:
+            print(f"Formatted constraint {self.current_num_constraint} ")
 
         # i_ = np.array(self.list_cstr[self.current_num_constraint]["i"])
         # j_ = np.array(self.list_cstr[self.current_num_constraint]["j"])
@@ -251,12 +253,17 @@ class CommonConstraints(VariablesCall):
             f"Got {label} instead."
         )
 
-        # logger_mosek.info("Creating new constraint")
+        logger_mosek.info("Creating new constraint")
         if name in self.cstr_names:
             logger_mosek.warning(
-                f"Constraint {name} already exists. Skipping creation."
+                f"CONSTRAINT CALLBACK : Constraint {name} already exists. Skipping creation."
             )
+            # print(f"CONSTRAINT CALLBACK : Constraint {name} already exists. Skipping creation.")
+            # if "McCormick" in name :
+            #     print("CALLBACK list cstr : ", [cst["name"] for cst in self.list_cstr])
             return True
+        # else :
+        #     print(f"CALLBACK Adding constraint {name}.")
 
         self.current_num_constraint += 1
         self.cstr_names.add(name)
@@ -272,10 +279,10 @@ class CommonConstraints(VariablesCall):
                 "ub": None,
                 "bound_type": None,
                 "dual_value": None,
-                "label": "to_change",
+                "label": label,
             }
         )
-        print(f"Creating new constraint {self.current_num_constraint} : {name}")
+        # print(f"Creating new constraint {self.current_num_constraint} : {name}")
         return False
 
     def first_term_equal_zero(self, num_matrices):
@@ -291,9 +298,12 @@ class CommonConstraints(VariablesCall):
 
         for num_matrix in range(num_matrices):
             name_matrix = self.indexes_matrices.get_name_matrix(num_matrix)
-            if self.new_constraint(f"First term equal to zero of matrix {name_matrix}"):
+            if self.new_constraint(
+                f"First term equal to zero of matrix {name_matrix}",
+                label="same_for_data",
+            ):
                 continue
-            #print(f"Adding constraint matrix {name_matrix}[1]=0")
+            # print(f"Adding constraint matrix {name_matrix}[1]=0")
             self.list_cstr[self.current_num_constraint]["elements"].add(
                 i=0, j=0, num_matrix=num_matrix, value=1.0
             )
@@ -303,16 +313,14 @@ class CommonConstraints(VariablesCall):
             )
 
     def end_constraints(self):
-        """
-        End the constraints.
-        """
         logger_mosek.info("Ending constraints")
         self.current_num_constraint += 1
+        print(
+            "CALLBACK : Ending constraints. Total number of constraints : ",
+            len(self.list_cstr),
+        )
 
     def get_histogram_of_coefficients(self):
-        """
-        Get a histogram of the coefficients of the constraints.
-        """
         print("Getting histogram of coefficients...")
         histogram_coeff = {}
         min_coeff = infinity
@@ -392,13 +400,55 @@ class CommonConstraints(VariablesCall):
             comparaison_by_constraints,
         )
 
-    def reinitialize(self):
+    def reinitialize(self, verbose: bool):
         """
         Reinitialize the constraints.
         """
+        self.verbose = verbose
         logger_mosek.info("Reinitializing constraints")
-
-        self.list_ctsr = list(
+        same_for_data = 0
+        to_change = 0
+        for cst in self.list_cstr:
+            if cst["label"] == "same_for_data":
+                same_for_data += 1
+            elif cst["label"] == "to_change":
+                to_change += 1
+            else:
+                if verbose:
+                    print(
+                        "CALLBACK CONSTRAINT : a constraint with label : ", cst["label"]
+                    )
+        if verbose:
+            print(
+                f"CALLBACK CONSTRAINT  BEFORE FILTERING : same_for_data = {same_for_data};  to_change = {to_change}"
+            )
+        self.list_cstr = list(
             filter(lambda d: d["label"] == "same_for_data", self.list_cstr)
         )
+        self.cstr_names = set(d["name"] for d in self.list_cstr if d["name"])
+
+        # self.list_cstr = []
+        if len(self.list_cstr) > 0:
+            nb_relus = 0
+            nb_rlt = 0
+            others = 0
+            for cst in self.list_cstr:
+                if "ReLU" in cst["name"]:
+                    nb_relus += 1
+                elif "McCormick" in cst["name"]:
+                    nb_rlt += 1
+                else:
+                    others += 1
+            if verbose:
+                print(
+                    f"CALLBACK CONSTRAINT after filter : nb_relus = {nb_relus},  nb_rlt = {nb_rlt}, others : {others}"
+                )
+
+        if verbose:
+            print(
+                f"CALLBACK : Nombre de contraintes apres filter : ", len(self.list_cstr)
+            )
+        # print("CALLBACK constraints after filter : ", [cst["name"] for cst in self.list_cstr])
+        # print("CALLBACK cstr_names after filter : ", self.cstr_names)
+        # exit()
         self.current_num_constraint = len(self.list_cstr) - 1

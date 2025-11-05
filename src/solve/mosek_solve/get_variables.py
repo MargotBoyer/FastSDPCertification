@@ -378,18 +378,21 @@ def get_results(self, cuts: List, verbose: bool = False):
         "USE_STABLE_INACTIVES": self.use_inactive_neurons,
         "Nb_stable_inactives": len(self.stable_inactives_neurons),
         "Nb_stable_actives": len(self.stable_actives_neurons),
+        "Nb_constraints" : len(self.handler.Constraints.list_cstr)
     }
     dic_benchmark.update({cut: True for cut in cuts})
     if "RLT" in cuts:
         dic_benchmark.update({"RLT_prop": self.RLT_prop})
 
     if self.handler.is_status_optimal():
+        print("CALLBACK : optimal status")
         dic_info_optimal_values = self.handler.add_all_infos_optimal_values_to_dic(
-            cuts, verbose
+            cuts
         )
         dic_benchmark.update(dic_info_optimal_values)
 
     elif self.handler.is_status_infeasible():
+        print ("CALLBACK : infeasible status")
         if verbose:
             logger_mosek.debug("Primal or dual infeasibility certificate found.\n")
         self.handler.get_dual_variables()
@@ -404,16 +407,19 @@ def get_results(self, cuts: List, verbose: bool = False):
             )
             file_cb.close()
     elif self.handler.is_status_unknown():
+        print ("CALLBACK : unknown status")
         logger_mosek.debug("Unknown solution status")
         try:
             dic_info_optimal_values = self.handler.add_all_infos_optimal_values_to_dic(
-                cuts, verbose
+                cuts,
             )
             dic_benchmark.update(dic_info_optimal_values)
         except Exception as e:
+            print("ERROR in get_results : ", e)
             logger_mosek.critical("ERROR IN GETTING SOLUTIONS: %s", e)
             pass
     else:
+        print ("CALLBACK : other status: ")
         if verbose:
             logger_mosek.debug("Other solution status")
 
@@ -424,7 +430,7 @@ def get_results(self, cuts: List, verbose: bool = False):
         self.benchmark_dataframe = add_row_from_dict(
             self.benchmark_dataframe, dic_benchmark
         )
-    print("\n \n self.benchmark_dataframe   : ", self.benchmark_dataframe)
+    print("benchmark_dataframe   : ", self.benchmark_dataframe)
 
 
 def get_results_trivially_solved(self):

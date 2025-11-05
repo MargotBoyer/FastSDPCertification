@@ -4,6 +4,7 @@ from auto_LiRPA import BoundedModule, BoundedTensor
 from auto_LiRPA.perturbations import PerturbationLpNorm
 import time
 
+from networks import network
 from tools import round_list_depth_2, change_to_zero_negative_values
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -30,14 +31,74 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
         x = torch.Tensor(x)
 
     x = x.type(torch.float).view(-1).unsqueeze(0).to(device)
+    print("x device : ", x.device)
     print("x shape : ", x.shape)
     
-    bounded_model = BoundedModule(
-        network,
-        torch.zeros_like(x).to(device),
-        bound_opts={"conv_mode": "patches"},
-    )
+    
+    network = network.to(device)
+    print("network device : ", next(network.parameters()).device)
+    network.eval()
+    print("network is none : ", network is None)
+
+    zeros = torch.zeros_like(x).to(device)
+    print("zeros device : ", zeros.device)
+
+
+    
+    print("creating BoundedModule ...")
+    try:
+
+        # # Vérif optional : assure que tout est bien sur cuda
+        # for param in network.parameters():
+        #     print("param :  ", param)
+        #     print("device :  ", device)
+        #     print("param device :  ", param.device)
+        #     assert param.device == device
+        # print('parameters are on the right device')
+        # for buf in network.buffers():
+        #     assert buf.device == device
+        # print('buffers are on the right device')
+        print("About to create BoundedModule on device:", device)
+        print("network device before BoundedModule:", next(network.parameters()).device)
+        print("zeros device before BoundedModule:", zeros.device)
+        bounded_model = BoundedModule(
+            network,
+            zeros,
+            bound_opts={"conv_mode": "patches"},
+        )
+        print('created BoundedModule')
+    except Exception as e:
+        print("Error creating BoundedModule:", e)
+        return
+
+
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # print("Using device:", device)
+
+    # # S'assurer que le modèle est bien déplacé
+    # network.to(device)
+
+    # # Vérifier que tous les paramètres ET buffers sont bien sur le même device
+    # for name, param in network.named_parameters():
+    #     print(f"STUDY : Parameter {name} is on device: {param.device}")
+
+    for name, layer in network.layers.items():
+        print("STUDY : Layer : ", name)
+    # # Créer l'entrée zéro sur le bon device
+    # zeros = torch.zeros_like(x, device=device)
+
+    # # Et maintenant seulement :
+    # bounded_model = BoundedModule(
+    #     network,
+    #     zeros,
+    #     bound_opts={"conv_mode": "patches"},
+    # )   
+
+
+
+
     bounded_model.eval()
+    print("bounded_model device : ", next(bounded_model.parameters()).device)
 
     ptb = PerturbationLpNorm(norm=norm, eps=epsilon)
     bounded_image = BoundedTensor(x, ptb)
@@ -49,6 +110,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     intermediate_bounds = bounded_model.save_intermediate()
 
     intermediate_bounds_list = list(intermediate_bounds.keys())
+    print("STUDY ; Intermediate bounds list : ", intermediate_bounds_list)
 
     # for layer_name, (min_tensor, max_tensor) in intermediate_bounds.items():
     #     print(f"{layer_name}:")
@@ -67,6 +129,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     layers_name[intermediate_bounds_list[0]] = 0
     for k in range(1, K + 1):
         layers_name[intermediate_bounds_list[1 + (k - 1) * 3]] = k
+    print("STUDY : Layers name mapping : ", layers_name)
 
     print("Intermediate bounds list final values : ", intermediate_bounds_list[-1])
     layers_name[intermediate_bounds_list[-1]] = K
@@ -86,6 +149,8 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
             min_tensor = torch.clamp(min_tensor, min=0).view(-1)
             max_tensor = max_tensor.view(-1)
 
+        print(f"STUDY : Adding layer : {layer_name} : {layers_name[layer_name]}, min = {min_tensor.min().item()}, max = {max_tensor.max().item()}")
+
         L[layers_name[layer_name]] = (
             min_tensor.squeeze().detach().cpu().numpy().tolist()
         )
@@ -95,7 +160,28 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
 
     L = round_list_depth_2(L)
     U = round_list_depth_2(U)
-    
+
+    for k in range(len(L)):
+        min_layer_diff = 1e10
+        max_layer_diff = -1e10
+        min_layer_diff_ecart_relatif = 1e10
+        min_layer = min(L[k])
+        max_layer = max(U[k])
+        for j in range(len(L[k])):
+            if L[k][j] > U[k][j]:
+                print(
+                    f"STUDY : Warning: Inconsistent bounds at layer {k}, neuron {j}: L={L[k][j]} > U={U[k][j]}. Adjusting L to U."
+                )
+            else : 
+                if U[k][j] - L[k][j] < min_layer_diff:
+                    min_layer_diff = U[k][j] - L[k][j]
+                if U[k][j] - L[k][j] > max_layer_diff:
+                    max_layer_diff = U[k][j] - L[k][j]
+                if 2*(U[k][j] - L[k][j]) / (abs(U[k][j]) + abs(L[k][j])) < min_layer_diff_ecart_relatif:
+                    min_layer_diff_ecart_relatif = 2*(U[k][j] - L[k][j]) / (abs(U[k][j]) + abs(L[k][j]))
+            
+        print("STUDY : Bounds differences at layer ", k, " : min=", min_layer, ";  max=", max_layer, " : min_diff=", min_layer_diff, ";  max_diff=", max_layer_diff, ";  rel_min=", min_layer_diff_ecart_relatif)
+
     return L, U
 
 
@@ -128,6 +214,7 @@ def check_stability_neurons(
     # Check if the neurons are stable
     for k in range(1, self.K):
         for j in range(self.n[k]):
+            print("STUDY : Layer ", k, " Neuron ", j, " L=", self.L[k][j], " U=", self.U[k][j])
             if self.L[k][j] <= 0 and self.U[k][j] <= 0 and not use_inactive_neurons:
                 self.stable_inactives_neurons.append((k, j))
             elif self.L[k][j] >= 0 and self.U[k][j] > 0 and not use_active_neurons:

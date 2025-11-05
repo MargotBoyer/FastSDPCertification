@@ -9,6 +9,8 @@ def add_RLT_constraints(self, p: float = 0.5):
     """
     Add the RLT constraints to the task.
     """
+    nb_rlt = 0
+    
     print("Adding RLT constraint")
     for k in range(1, self.K + 1 if self.LAST_LAYER else self.K):
         nb_cstr = int(p * self.n[k - 1])
@@ -20,6 +22,7 @@ def add_RLT_constraints(self, p: float = 0.5):
             or (k - 1, j) in self.stable_actives_neurons
         ]
         print("Indexes pruned for layer", k, ":", indexes_pruned)
+        study_ablation =  True
         for neuron_next in range(self.n[k]):
             if (k, neuron_next) in self.stable_inactives_neurons:
                 print("RLT : neuron_next", neuron_next, "is stable, skipping")
@@ -32,7 +35,9 @@ def add_RLT_constraints(self, p: float = 0.5):
             neurons_with_great_weights = get_m_indexes_of_higher_values_in_list(
                 np.abs(self.W[k - 1][neuron_next]), nb_cstr, indexes_pruned
             )
-
+            # if study_ablation : 
+            #     print(f"STUDY ABLATION for layer {k}: number of neurons selected : ", len(neurons_with_great_weights))
+            #     study_ablation = False
             for neuron_prev in neurons_with_great_weights:
                 # if (k - 1, neuron_prev) in self.stable_inactives_neurons or (
                 #     k - 1,
@@ -43,12 +48,14 @@ def add_RLT_constraints(self, p: float = 0.5):
                     k - 1,
                     neuron_prev,
                 ) not in self.stable_actives_neurons
-                print(
-                    "Adding RLT constraint for neuron_prev:",
-                    neuron_prev,
-                    "neuron_next:",
-                    neuron_next,
-                )
+                # print(
+                #     "Adding RLT constraint for neuron_prev:",
+                #     neuron_prev,
+                #     "neuron_next:",
+                #     neuron_next,
+                # )
                 # assert self.U[k - 1][neuron_prev] > 0
                 # assert self.U[k][neuron_next] > 0
                 self.McCormick_inter_layers(k, neuron_prev, neuron_next)
+                nb_rlt+=1
+    print(f"CALLBACK : RLT = {nb_rlt}")    

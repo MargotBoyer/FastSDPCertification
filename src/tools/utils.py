@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import numpy as np
 import argparse
+import subprocess
 
 # CONSTANTS
 
@@ -17,7 +18,7 @@ def get_m_indexes_of_higher_values_in_list(L, m, indexes_pruned=[]):
         i
         for i in sorted(range(len(L)), key=lambda i: L[i], reverse=True)
         if i not in indexes_pruned
-    ][:m]
+    ][: min(m, len(L))]
 
 
 def deduct_two_lists(L1, L2):
@@ -210,35 +211,47 @@ def add_row_from_dict(df, row_dict):
     return pd.concat([df, new_row_df], ignore_index=True)
 
 
+# def get_git_root():
+#     """Trouve et retourne le chemin racine du repository git"""
+#     current_path = os.path.abspath(".")
+
+#     # Remonte jusqu'à trouver le dossier .git ou la racine du système
+#     while current_path != os.path.dirname(
+#         current_path
+#     ):  # Arrête à la racine du système
+#         if os.path.exists(os.path.join(current_path, ".git")):
+#             return current_path
+#         current_path = os.path.dirname(current_path)
+
+#     # Si on ne trouve pas de dossier .git, on peut fallback sur une autre méthode
+#     # Par exemple, utiliser le nom du dossier racine du projet
+#     import inspect
+
+#     return os.path.dirname(
+#         os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+#     )
+
+
 def get_git_root():
-    """Trouve et retourne le chemin racine du repository git"""
-    current_path = os.path.abspath(".")
-
-    # Remonte jusqu'à trouver le dossier .git ou la racine du système
-    while current_path != os.path.dirname(
-        current_path
-    ):  # Arrête à la racine du système
-        if os.path.exists(os.path.join(current_path, ".git")):
-            return current_path
-        current_path = os.path.dirname(current_path)
-
-    # Si on ne trouve pas de dossier .git, on peut fallback sur une autre méthode
-    # Par exemple, utiliser le nom du dossier racine du projet
-    import inspect
-
-    return os.path.dirname(
-        os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    )
+    try:
+        # Essaie de trouver la racine du repo Git
+        root = subprocess.check_output(
+            ['git', 'rev-parse', '--show-toplevel'],
+            stderr=subprocess.DEVNULL
+        ).decode('utf-8').strip()
+        return root
+    except Exception:
+        # Fallback si Git n'est pas dispo (ex: Jean-Zay)
+        # Par exemple : retourne le dossier contenant ce fichier
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
 
-# Ajoute automatiquement le chemin racine au sys.path lors de l'import
+# Appliquer le path
 git_root = get_git_root()
 if git_root not in sys.path:
     sys.path.append(git_root)
 
-
 def get_project_path(relative_path):
-    """Retourne le chemin absolu à partir d'un chemin relatif à la racine du projet"""
     return os.path.join(git_root, relative_path)
 
 

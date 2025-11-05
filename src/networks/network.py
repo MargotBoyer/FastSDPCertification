@@ -86,7 +86,7 @@ class ReLUNN(nn.Module):
             n = config["network"]["n"]
 
             path = get_project_path(config["network"]["path"].replace("\\", "/"))
-            parametres = torch.load(path, weights_only=False)
+            parametres = torch.load(path)
 
             # net = cls(K, n)
             # net.load_state_dict(parametres)

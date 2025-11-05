@@ -15,7 +15,7 @@ import shutil
 import argparse
 import multiprocessing as mp
 
-from tools import create_folder_benchmark
+from tools import create_folder_benchmark, get_project_path
 from solve.mosek_solve import concat_dataframes_with_missing_columns
 
 
@@ -127,7 +127,6 @@ class Certification_Problem:
         for i, (x, ytrue) in enumerate(dataloader):
 
             # print("x  :", x)
-            print("ytrue:", ytrue)
             # if (i) % 10 != 0:
             #     print(
             #         f"Skipping sample {i + 1} with label {ytrue.item()} as it is not a multiple of 10."
@@ -139,13 +138,15 @@ class Certification_Problem:
             #     )
             #     continue
             # assert ytrue == y, "ytrue should match the label y"
-            print("x  shape:", x.shape)
-            # if i <= 40 or i >= 45:
-            #     # print(
-            #     #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
-            #     # )
-            #     print("Skipping data sample ", i + 1, "for testing purposes.")
-            #     continue
+
+            # SHARE
+            if i <= 55 or i!=56:
+                # print(
+                #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
+                # )
+                print("Skipping data sample ", i + 1, "for testing purposes.")
+                continue
+
             print("i : ", i)
             # exit()
             x = x.view(-1)  # Ensure x is a 2D tensor
@@ -181,7 +182,7 @@ class Certification_Problem:
                 nb_targets = len(model_instance.ytargets)
                 print("STUDY : number of targets : ", nb_targets)
             except Exception as e:
-                print("STUDY : Error while creating model instance:", e)
+                print("STUDY ERROR : Error while creating model instance:", e)
                 nb_actives = -1
                 nb_inactives = -1
                 nb_targets = 0
@@ -193,13 +194,15 @@ class Certification_Problem:
             print("STUDY : output_bounds_U:", output_bounds_U)
             print("STUDY : output_bounds_L:", output_bounds_L)
 
-            model_instance.solve(verbose=True, only_bounds=True)
+            model_instance.solve(verbose=True, only_bounds=False)
 
             self.benchmark = concat_dataframes_with_missing_columns(
                 self.benchmark, model_instance.benchmark_dataframe
             )
             self.benchmark.to_csv(
-                f"results/benchmark/{self.title}/{title_run}/results.csv",
+                get_project_path(
+                    f"results/benchmark/{self.title}/{title_run}/results.csv"
+                ),
                 index=False,
             )
             stable_actives_study = pd.concat(
@@ -219,16 +222,18 @@ class Certification_Problem:
             )
 
         stable_actives_study.to_csv(
-            f"results/benchmark/{self.title}/{title_run}/stable_actives_study.csv"
+            get_project_path(
+                f"results/benchmark/{self.title}/{title_run}/stable_actives_study.csv"
+            )
         )
 
     def solve(self, title_run: str = "") -> None:
         print("Starting certification problem solving ...")
         print("self.models:", self.models)
 
-        title_run = (
-            datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss") + "_" + title_run
-        )
+        # title_run = (
+        #     datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss") + "_" + title_run
+        # )
 
         self.benchmark = pd.DataFrame()
 
@@ -266,4 +271,6 @@ if __name__ == "__main__":
 
     yaml_file = f"{args.network}.yaml"  # "mnist_one_data_benchmark.yaml"
     certif_problem = Certification_Problem.load_from_yaml(yaml_file)
-    certif_problem.solve(args.title_run)
+
+    launch_date = datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss")
+    certif_problem.solve(launch_date + "_" + args.title_run)

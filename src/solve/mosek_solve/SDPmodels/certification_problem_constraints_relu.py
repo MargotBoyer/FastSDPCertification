@@ -14,8 +14,9 @@ def ReLU_constraint_stable_active_relaxation(
         (k - 1, i) in self.stable_actives_neurons for i in range(self.n[k - 1])
     ), f"Neuron ({k}, {j}) has no previous stable active neuron."
 
+
     if self.handler.Constraints.new_constraint(
-        f"ReLU - z_{k,j} * (z{k,j} - W_{k,j}' z_{k-1}' - b_{k,j}) - M_{k,j} * z_{k,j}'' <= 0 - {bound_type} - {bound_sense}"
+        f"ReLU - z_{k,j} * (z{k,j} - W_{k,j}' z_{k-1}' - b_{k,j}) - M_{k,j} * z_{k,j}'' <= 0 - {bound_type} - {bound_sense}", label = "same_for_data"
     ):
         return
 
@@ -92,7 +93,7 @@ def ReLU_constraint_Lan(
                 continue
             # print(f"Adding ReLU constraint for layer {k}, neuron {j}")
             # zk >= 0
-            if self.handler.Constraints.new_constraint(f"ReLU - z_{k,j}>=0"):
+            if self.handler.Constraints.new_constraint(f"ReLU - z_{k,j}>=0", label = "same_for_data"):
                 continue
             self.handler.Constraints.add_linear_variable(
                 "z",
@@ -108,7 +109,7 @@ def ReLU_constraint_Lan(
 
             # zk >= Wk zk-1 + bk
             if self.handler.Constraints.new_constraint(
-                f"ReLU - z_{k,j} >= W_{k,j} z_{k-1} + b{k,j}"
+                f"ReLU - z_{k,j} >= W_{k,j} z_{k-1} + b{k,j}", label = "same_for_data"
             ):
                 continue
 
@@ -141,6 +142,7 @@ def ReLU_constraint_Lan(
             ):
                 # The constraint cannot be added as it links products of variables from different matrices : a relaxation is needed
                 # print("Relaxation of ReLU constraint for layer", k, "neuron", j)
+                
                 self.ReLU_constraint_stable_active_relaxation(
                     k, j, bound_sense="upper", bound_type="one_variable"
                 )
@@ -157,7 +159,7 @@ def ReLU_constraint_Lan(
             else:
                 # print("Adding normal ReLU constraint for layer", k, "neuron", j)
                 if self.handler.Constraints.new_constraint(
-                    f"ReLU - z_{k,j} * (z{k,j} - W_{k,j} z_{k-1} - b_{k,j}) = 0"
+                    f"ReLU - z_{k,j} * (z{k,j} - W_{k,j} z_{k-1} - b_{k,j}) = 0", label = "same_for_data"
                 ):
                     continue
 
@@ -238,7 +240,7 @@ def ReLU_triangularization(self):
 
             # zk <= k * (Wk zk-1 + bk - Lk) + ReLU(Lk)
             if self.handler.Constraints.new_constraint(
-                f"ReLU - z_{k,j} <= kcst * (W{k,j} z_{k-1} + b_{k,j} - L{k,j}) + ReLU(L_{k,j})"
+                f"ReLU - z_{k,j} <= kcst * (W{k,j} z_{k-1} + b_{k,j} - L{k,j}) + ReLU(L_{k,j})", label = "same_for_data"
             ):
                 continue
             self.handler.Constraints.add_linear_variable(

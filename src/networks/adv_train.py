@@ -71,6 +71,7 @@ def evaluate_robust(model, testloader, device, pgd_config, max_batches=None):
             outputs = model(adv_inputs)
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
+            print(f"STUDY : predicted : {predicted}, label = {labels}")
             correct += (predicted == labels).sum().item()
 
     return correct / total

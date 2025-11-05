@@ -1,14 +1,14 @@
 data :
   name : "mnist"
-  path :  "data/datasets/MNIST/ConcatMNIST/5_classes/concatmnist_subset_1_per_class.pth"
-  num_classes : 5
-  num_samples : 5
+  path :  "data/datasets/MNIST/ConcatMNIST/20_classes/concatmnist_subset_1_per_class.pth"
+  num_classes : 20
+  num_samples : 20
 
-epsilon : 0.04
+epsilon : 0.05
 
 network :
-  name : "concatmnist-6x100-5-classes"
-  path : "data/models/concatmnist_adv_concatmnist-6x100-5-classes.pt"
+  name : "concatmnist-6x100-20-classes"
+  path : "data/models/concatmnist_adv_concatmnist-6x100-20-classes.pt"
   K : 7
   n : 
     - 784
@@ -18,7 +18,7 @@ network :
     - 100
     - 100
     - 100
-    - 5
+    - 20
 
 
 
@@ -61,8 +61,8 @@ models :
     - "RLT"
     - "triangularization"
     RLT_props : 
-    - 0.1
     - 0.2
+    # - 0.2
     # - 0.3
     # - 0.5
     all_combinations_cuts : false
@@ -87,16 +87,13 @@ models :
   #   - "McC_betaz_logits"
   #   - "Tij_before_penultimate_layer"
   #   RLT_props : 
-  #   - 0.1
-  #   - 0.2
-  #   - 0.3
-  #   - 0.5
+  #   - 1.
   #   all_combinations_cuts : false
   #   MATRIX_BY_LAYERS: true
   #   LAST_LAYER: false
   #   use_fusion: false  # Whether to use the fusion API for MOSEK
   #   use_callback : false # Whether to use the callback for MOSEK
-  #   use_active_neurons: true # Whether to use active neurons in the certification problem as variables
+  #   use_active_neurons: false # Whether to use active neurons in the certification problem as variables
   #   use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
   #   keep_penultimate_actives : true # Whether to keep the penultimate layer active neurons in the certification problem
   #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"

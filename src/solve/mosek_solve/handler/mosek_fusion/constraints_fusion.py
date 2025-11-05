@@ -1,11 +1,14 @@
 from typing import List
 import mosek
+import time
 import numpy as np
 from mosek.fusion import Expr, Domain, Matrix, Model, Variable
 import mosek.fusion.pythonic
 
 from ..indexes_matrices import Indexes_Matrixes_for_Mosek_Solver
 from ..indexes_variables import Indexes_Variables_for_Mosek_Solver
+import numba
+from ..variable_elements import add_dict_linear_to_elements, add_dict_quad_to_elements
 
 from ..constraints import CommonConstraints
 import os
@@ -57,57 +60,50 @@ class ConstraintsFusion(CommonConstraints):
         )
         self.model = model
 
-    def add_var(self, indice_i: int, indice_j: int, num_matrix: int, value: float):
+    def add_var(
+        self, dict1: numba.typed.Dict, value: float, dict2: numba.typed.Dict = None
+    ):
         """
         Add a variable to the current constraint.
-
-        Parameters
         ----------
-        indice_i: int
-            The index of the variable in the i-th position.
-        indice_j: int
-            The index of the variable in the j-th position.
-        num_matrix: int
-            The number of the matrix.
-        value: float
-            The value of the variable.
-        name: str
-            The name of the variable.
         """
-        if value == 0:
-            return
-
-        if (indice_i, indice_j, num_matrix) in self.list_cstr[
-            self.current_num_constraint
-        ]["elements"].keys():
-            if indice_i <= indice_j:
-                self.list_cstr[self.current_num_constraint]["elements"][
-                    (indice_j, indice_i, num_matrix)
-                ] += value
-            else:
-                self.list_cstr[self.current_num_constraint]["elements"][
-                    (indice_i, indice_j, num_matrix)
-                ] += value
-
+        if dict2 is None:
+            add_dict_linear_to_elements(
+                elements=self.list_cstr[self.current_num_constraint][
+                    "elements"
+                ].elements,
+                dict=dict1,
+                value=value,
+                nb_index=self.indexes_variables.max_index,
+            )
         else:
-            if indice_i <= indice_j:  # DIAGONAL OR UPPER TRIANGLE
-                self.list_cstr[self.current_num_constraint]["elements"][
-                    (indice_j, indice_i, num_matrix)
-                ] = value  # NO DIVISION BY 2 : FUSION API IS TAKING CARE OF DIAGONAL TERMS
-            else:  # LOWER TRIANGLE
-                self.list_cstr[self.current_num_constraint]["elements"][
-                    (indice_i, indice_j, num_matrix)
-                ] = value
+            add_dict_quad_to_elements(
+                elements=self.list_cstr[self.current_num_constraint][
+                    "elements"
+                ].elements,
+                dict1=dict1,
+                dict2=dict2,
+                value=value,
+                nb_index=self.indexes_variables.max_index,
+                dividing_diag=False,
+            )
 
     def add_to_task(self):
         """
         Add the constraint to the task.
         """
         logger_mosek.info(f"Adding {self.list_cstr} constraints to the task...")
-
+        if self.verbose : 
+            print(f"CALLBACK : Number of constraints : {len(self.list_cstr)}")
+        time_start = time.time()
         for ind_cstr in range(len(self.list_cstr)):
             # print("Adding constraint ", self.list_cstr[ind_cstr]["name"])
-
+            # if ind_cstr % 10 == 0:
+            #     print(f"CALLBACK : Adding constraint {ind_cstr}/{len(self.list_cstr)}")
+            #     time_stop = time.time()
+            #     print(
+            #         f"Current time to add constraints : {time_stop - time_start:.2f}s"
+            #     )
             res = sort_lists_by_first(
                 self.list_cstr[ind_cstr]["num_matrix"],
                 self.list_cstr[ind_cstr]["i"],

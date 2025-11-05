@@ -5,6 +5,10 @@ import mosek
 def matrix_by_layers_rec(self, only_linear_constraints: bool = False):
     print("Adding rec matrices constraint")
     sum_cstr = 0
+    print("STUDY : inactive neurons in rec constraints : ", self.stable_inactives_neurons
+          )
+    print("STUDY : active neurons in rec constraints : ", self.stable_actives_neurons
+          )
     for k in range(1, self.K if self.LAST_LAYER else self.K - 1):
         for j in range(self.n[k]):
             if (k, j) in self.stable_inactives_neurons:
@@ -15,7 +19,7 @@ def matrix_by_layers_rec(self, only_linear_constraints: bool = False):
                 continue
             # P_{k-1}[z_{k,j}] == P_{k}[z_{k,j}]
             if self.handler.Constraints.new_constraint(
-                f"Rec: P_{k-1}[z_{k,j}] == P_{k}[z_{k,j}]"
+                f"Rec: P_{k-1}[z_{k,j}] == P_{k}[z_{k,j}]", label="same_for_data"
             ):
                 return
             self.handler.Constraints.add_linear_variable(
@@ -48,7 +52,7 @@ def matrix_by_layers_rec(self, only_linear_constraints: bool = False):
                 ):
                     continue
                 for j2 in range(j + 1):
-                    if (k, j2) in self.stable_inactives_neurons :
+                    if (k, j2) in self.stable_inactives_neurons:
                         continue
                     elif (k, j2) in self.stable_actives_neurons and (
                         not self.keep_penultimate_actives or k != self.K - 1
@@ -56,7 +60,8 @@ def matrix_by_layers_rec(self, only_linear_constraints: bool = False):
                         continue
                     # P_{k-1}[z_{k,j} * z_{k,j2}] == P_{k}[z_{k,j} * z_{k,j2}]
                     if self.handler.Constraints.new_constraint(
-                        f"Rec: P_{k-1}[z_{k,j}  * z_{k,j2}] == P_{k}[z_{k,j} *  * z_{k,j2}]"
+                        f"Rec: P_{k-1}[z_{k,j}  * z_{k,j2}] == P_{k}[z_{k,j} *  * z_{k,j2}]",
+                        label="same_for_data",
                     ):
                         return
                     self.handler.Constraints.add_quad_variable(

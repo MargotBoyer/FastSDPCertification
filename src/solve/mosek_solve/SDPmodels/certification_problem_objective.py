@@ -19,7 +19,6 @@ def objective_Lan(self):
         )
 
     else:
-        print("NOT LAST LAYER IN Lan")
         for i in range(self.n[self.K - 1]):
             if (self.K - 1, i) in self.stable_inactives_neurons:
                 continue

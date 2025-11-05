@@ -1,30 +1,32 @@
 data :
-  name : "moon"
-  path : "data/datasets/moon_dataset.pth"
-  num_classes : 2
+  name : "blob_nn"
+  path : "data/datasets/blob_dataset.pth"
+  num_classes : 3
   num_samples : 1000
 
 
 
-epsilon : 4
+epsilon : 2
 
 network :
-  name : "moon_nn"
-  path : "data/models/moon_nn.pt"
-  K : 4
+  name : "blob_nn"
+  path : "data/models/blob_nn.pt"
+  K : 3
   n : 
     - 2
-    - 4
     - 10
     - 6
-    - 2
+    - 3
 
 models :
+  # SDPt
   - certification_model_name : "LanSDP"
     cuts : 
     - "RLT"
     - "triangularization"
-    RLT_prop : 1
+    RLT_props : 
+    - 0.
+    - 0.1
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
@@ -32,3 +34,6 @@ models :
     use_callback : false # Whether to use the callback for MOSEK
     use_active_neurons: true # Whether to use active neurons in the certification problem as variables
     use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
+    keep_penultimate_actives : true
+    bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
+

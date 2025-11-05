@@ -73,7 +73,7 @@ class Objective(VariablesCall):
     def add_var(self, **kwargs):
         raise NotImplementedError("This method should be implemented in the subclass.")
 
-    def reinitialize(self):
+    def reinitialize(self, verbose : bool):
         """
         Reinitialize the current objective.
         """
@@ -82,3 +82,4 @@ class Objective(VariablesCall):
         )
 
         self.constant = 0
+        self.verbose = verbose

@@ -63,3 +63,10 @@ def num_matrices_variables(self):
     Return the number of matrices.
     """
     return len(self.indexes_matrices.current_matrices_variables)
+
+def print_num_variables(self):
+    num_variables = 0
+    for i in range(self.num_matrices_variables()):
+        dim = self.indexes_matrices.current_matrices_variables[i]["dim"]
+        num_variables += (dim+1) * (dim+1)
+    print(f"CALLBACK num variables : {num_variables}")

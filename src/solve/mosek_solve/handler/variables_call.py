@@ -70,9 +70,6 @@ class LayersValues:
             for layer in range(K + 1)
             for neuron in range(n[layer])
         }
-
-        print(" K in LayersValues:", self.K)
-        print("len equivalent_values_layers:", len(self.equivalent_values_layers))
         for k in range(K + 1):
             for j in range(n[k]):
                 self.add_equivalent_values(k, j)
@@ -285,14 +282,14 @@ class VariablesCall:
         self.L = kwargs.get("L", None)
         self.U = kwargs.get("U", None)
 
-        print(
-            "maxabs(U) : ", max([max([abs(U_i_j) for U_i_j in U_i])] for U_i in self.U)
-        )
-        print(
-            "maxabs(L) : ", max([max([abs(L_i_j) for L_i_j in L_i])] for L_i in self.L)
-        )
+        # print(
+        #     "maxabs(U) : ", max([max([abs(U_i_j) for U_i_j in U_i])] for U_i in self.U)
+        # )
+        # print(
+        #     "maxabs(L) : ", max([max([abs(L_i_j) for L_i_j in L_i])] for L_i in self.L)
+        # )
 
-        print("Starting Layers Values initialization with K:", self.K)
+        # print("Starting Layers Values initialization with K:", self.K)
         self.layers_values = LayersValues(
             K=self.K,
             n=self.n,
@@ -302,8 +299,6 @@ class VariablesCall:
             stable_inactives_neurons=self.stable_inactives_neurons,
             **kwargs,
         )
-        print("Layers Values initialized with K:", self.K)
-        print("self.n in VariablesCall:", self.n)
 
         self.L, self.U = self.layers_values.computing_bounds_based_on_stable_neurons(
             L=self.L, U=self.U
@@ -323,7 +318,7 @@ class VariablesCall:
         self.equivalent_neurons = Equivalent_Neurons_Index()
         self.equivalent_indexes_betas = Equivalent_Betas_Index(ytargets=self.ytargets)
         self.create_equivalent_indexes_matrices()
-        self._print_equivalent_indexes_()
+        #self._print_equivalent_indexes_()
         self.study_indexes_equivalent_neurons()
 
     def create_equivalent_indexes_matrices(self):

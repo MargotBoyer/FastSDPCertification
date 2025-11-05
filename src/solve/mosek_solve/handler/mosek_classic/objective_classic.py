@@ -94,15 +94,17 @@ class ObjectiveClassic(Objective):
         Add objective to the task.
         """
         logging.info("Adding Objective to the task")
-        print("Adding Objective to the task ...")
+        if self.verbose :
+            print("Adding Objective to the task ...")
         self.format_obj()
-        print(
-            f"Objective elements: {self.elements.elements}, num_matrix: {self.num_matrix}, i: {self.i}, j: {self.j}, value: {self.value}"
-        )
-        print("Objective size  : ", len(self.elements.elements))
-        print(
-            f"Objective i : {self.i.size}, j : {self.j.size}, num_matrix : {self.num_matrix.size}, value : {self.value.size}"
-        )
+        if self.verbose :
+            print(
+                f"Objective elements: {self.elements.elements}, num_matrix: {self.num_matrix}, i: {self.i}, j: {self.j}, value: {self.value}"
+            )
+            print("Objective size  : ", len(self.elements.elements))
+            print(
+                f"Objective i : {self.i.size}, j : {self.j.size}, num_matrix : {self.num_matrix.size}, value : {self.value.size}"
+            )
         self.task.putbarcblocktriplet(
             self.num_matrix,
             self.i,

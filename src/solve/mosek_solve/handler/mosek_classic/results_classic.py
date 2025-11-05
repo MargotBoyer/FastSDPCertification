@@ -10,24 +10,28 @@ from ...get_variables import print_solution_to_file_for_cb_solver
 logger_mosek = logging.getLogger("Mosek_logger")
 
 
-def add_all_infos_optimal_values_to_dic(self, cuts: List, verbose: bool = False):
+def add_all_infos_optimal_values_to_dic(self, cuts: List):
     """
     Add all the information about the optimal values found to the dictionnary for the benchmark.
     """
     self.primal_obj_value = self.task.getprimalobj(mosek.soltype.itr)
     logger_mosek.debug(
         "Optimal solution found with objective value: %s", self.primal_obj_value
-    )
-    print("Optimal primal solution found with objective value: ", self.primal_obj_value)
+    )    
     self.dual_obj_value = self.task.getdualobj(mosek.soltype.itr)
-    print("Optimal dual objective value: ", self.dual_obj_value)
+    if self.verbose : 
+        print("Optimal primal solution found with objective value: ", self.primal_obj_value)
+        print("Optimal dual objective value: ", self.dual_obj_value)
     logger_mosek.info("Dual objective value: %s", self.dual_obj_value)
+    if self.verbose :
+        print(f"CALLBACK : constant = {self.Objective.constant}")
     self.optimal_value = self.primal_obj_value + self.Objective.constant
     print(
-        f"Optimal value (with added constant): {self.optimal_value} : with cuts {cuts}"
+        f"CALLBACK : Optimal value (with added constant): {self.optimal_value} : with cuts {cuts}"
     )
     self.is_robust = self.optimal_value >= 0
-    print("Is robust: ", self.is_robust)
+    if self.verbose :
+        print("Is robust: ", self.is_robust)
     # self.compute_solutions(cuts, verbose)
     dic_sol = {"optimal_value": self.optimal_value}
     dic_sol.update({"primal_obj_value": self.primal_obj_value})
