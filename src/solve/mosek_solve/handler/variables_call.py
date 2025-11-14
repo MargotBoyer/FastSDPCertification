@@ -458,10 +458,10 @@ class VariablesCall:
         """
         Add a constant to the constraint.
         """
-        raise NotImplementedError("This method should be implemented in the subclass.")
+        raise NotImplementedError("This method should be implemented in the subclass COnstraint or Objective.")
 
     def add_var(self, **kwargs):
-        raise NotImplementedError("This method should be implemented in the subclass.")
+        raise NotImplementedError("This method should be implemented in the subclass Constraint or Objective.")
 
     def get_upper_bound_value(self, layer: int, neuron: int) -> float:
         """
@@ -487,8 +487,8 @@ class VariablesCall:
             )
         return self.layers_values.lower_bounds.get((layer, neuron))
 
-    def call_variable(self, var: str, **kwargs):
-        pass
+    # def call_variable(self, var: str, **kwargs):
+    #     pass
 
     def add_linear_variable(self, var: str, value: float, **kwargs):
         """

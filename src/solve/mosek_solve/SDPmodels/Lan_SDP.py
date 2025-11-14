@@ -87,6 +87,7 @@ class LanSDP(MosekSolver):
         ub_decomposed = "ReLU_active_ub_decomposed" in cuts
         lb_decomposed = "ReLU_active_lb_decomposed" in cuts
 
+
         self.ReLU_constraint_Lan()
 
         self.ReLU_triangularization()

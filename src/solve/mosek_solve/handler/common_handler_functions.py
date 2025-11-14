@@ -70,3 +70,4 @@ def print_num_variables(self):
         dim = self.indexes_matrices.current_matrices_variables[i]["dim"]
         num_variables += (dim+1) * (dim+1)
     print(f"CALLBACK num variables : {num_variables}")
+    return num_variables

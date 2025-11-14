@@ -94,7 +94,9 @@ class MdSDP(MosekSolver):
         ub_decomposed = "ReLU_active_ub_decomposed" in cuts
         lb_decomposed = "ReLU_active_lb_decomposed" in cuts
 
+        print("STUDY : Adding ReLU constraints...")
         self.ReLU_constraint_Lan()
+        print("STUDY : ReLU constraints added.")
 
         if "triangularization" in cuts:
             self.ReLU_triangularization()

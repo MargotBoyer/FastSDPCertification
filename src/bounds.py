@@ -33,8 +33,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     x = x.type(torch.float).view(-1).unsqueeze(0).to(device)
     print("x device : ", x.device)
     print("x shape : ", x.shape)
-    
-    
+
     network = network.to(device)
     print("network device : ", next(network.parameters()).device)
     network.eval()
@@ -43,8 +42,6 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     zeros = torch.zeros_like(x).to(device)
     print("zeros device : ", zeros.device)
 
-
-    
     print("creating BoundedModule ...")
     try:
 
@@ -66,11 +63,10 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
             zeros,
             bound_opts={"conv_mode": "patches"},
         )
-        print('created BoundedModule')
+        print("created BoundedModule")
     except Exception as e:
         print("Error creating BoundedModule:", e)
         return
-
 
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # print("Using device:", device)
@@ -82,8 +78,8 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     # for name, param in network.named_parameters():
     #     print(f"STUDY : Parameter {name} is on device: {param.device}")
 
-    for name, layer in network.layers.items():
-        print("STUDY : Layer : ", name)
+    # for name, layer in network.layers.items():
+    #     print("STUDY : Layer : ", name)
     # # Créer l'entrée zéro sur le bon device
     # zeros = torch.zeros_like(x, device=device)
 
@@ -92,10 +88,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     #     network,
     #     zeros,
     #     bound_opts={"conv_mode": "patches"},
-    # )   
-
-
-
+    # )
 
     bounded_model.eval()
     print("bounded_model device : ", next(bounded_model.parameters()).device)
@@ -149,7 +142,9 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
             min_tensor = torch.clamp(min_tensor, min=0).view(-1)
             max_tensor = max_tensor.view(-1)
 
-        print(f"STUDY : Adding layer : {layer_name} : {layers_name[layer_name]}, min = {min_tensor.min().item()}, max = {max_tensor.max().item()}")
+        # print(
+        #     f"STUDY : Adding layer : {layer_name} : {layers_name[layer_name]}, min = {min_tensor.min().item()}, max = {max_tensor.max().item()}"
+        # )
 
         L[layers_name[layer_name]] = (
             min_tensor.squeeze().detach().cpu().numpy().tolist()
@@ -161,26 +156,26 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     L = round_list_depth_2(L)
     U = round_list_depth_2(U)
 
-    for k in range(len(L)):
-        min_layer_diff = 1e10
-        max_layer_diff = -1e10
-        min_layer_diff_ecart_relatif = 1e10
-        min_layer = min(L[k])
-        max_layer = max(U[k])
-        for j in range(len(L[k])):
-            if L[k][j] > U[k][j]:
-                print(
-                    f"STUDY : Warning: Inconsistent bounds at layer {k}, neuron {j}: L={L[k][j]} > U={U[k][j]}. Adjusting L to U."
-                )
-            else : 
-                if U[k][j] - L[k][j] < min_layer_diff:
-                    min_layer_diff = U[k][j] - L[k][j]
-                if U[k][j] - L[k][j] > max_layer_diff:
-                    max_layer_diff = U[k][j] - L[k][j]
-                if 2*(U[k][j] - L[k][j]) / (abs(U[k][j]) + abs(L[k][j])) < min_layer_diff_ecart_relatif:
-                    min_layer_diff_ecart_relatif = 2*(U[k][j] - L[k][j]) / (abs(U[k][j]) + abs(L[k][j]))
-            
-        print("STUDY : Bounds differences at layer ", k, " : min=", min_layer, ";  max=", max_layer, " : min_diff=", min_layer_diff, ";  max_diff=", max_layer_diff, ";  rel_min=", min_layer_diff_ecart_relatif)
+    # for k in range(len(L)):
+    #     min_layer_diff = 1e10
+    #     max_layer_diff = -1e10
+    #     min_layer_diff_ecart_relatif = 1e10
+    #     min_layer = min(L[k])
+    #     max_layer = max(U[k])
+    #     for j in range(len(L[k])):
+    #         if L[k][j] > U[k][j]:
+    #             print(
+    #                 f"STUDY : Warning: Inconsistent bounds at layer {k}, neuron {j}: L={L[k][j]} > U={U[k][j]}. Adjusting L to U."
+    #             )
+    #         else :
+    #             if U[k][j] - L[k][j] < min_layer_diff:
+    #                 min_layer_diff = U[k][j] - L[k][j]
+    #             if U[k][j] - L[k][j] > max_layer_diff:
+    #                 max_layer_diff = U[k][j] - L[k][j]
+    #             if 2*(U[k][j] - L[k][j]) / (abs(U[k][j]) + abs(L[k][j])) < min_layer_diff_ecart_relatif:
+    #                 min_layer_diff_ecart_relatif = 2*(U[k][j] - L[k][j]) / (abs(U[k][j]) + abs(L[k][j]))
+
+    #     print("STUDY : Bounds differences at layer ", k, " : min=", min_layer, ";  max=", max_layer, " : min_diff=", min_layer_diff, ";  max_diff=", max_layer_diff, ";  rel_min=", min_layer_diff_ecart_relatif)
 
     return L, U
 
@@ -214,7 +209,16 @@ def check_stability_neurons(
     # Check if the neurons are stable
     for k in range(1, self.K):
         for j in range(self.n[k]):
-            print("STUDY : Layer ", k, " Neuron ", j, " L=", self.L[k][j], " U=", self.U[k][j])
+            # print(
+            #     "STUDY : Layer ",
+            #     k,
+            #     " Neuron ",
+            #     j,
+            #     " L=",
+            #     self.L[k][j],
+            #     " U=",
+            #     self.U[k][j],
+            # )
             if self.L[k][j] <= 0 and self.U[k][j] <= 0 and not use_inactive_neurons:
                 self.stable_inactives_neurons.append((k, j))
             elif self.L[k][j] >= 0 and self.U[k][j] > 0 and not use_active_neurons:

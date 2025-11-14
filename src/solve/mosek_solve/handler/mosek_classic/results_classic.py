@@ -32,7 +32,7 @@ def add_all_infos_optimal_values_to_dic(self, cuts: List):
     self.is_robust = self.optimal_value >= 0
     if self.verbose :
         print("Is robust: ", self.is_robust)
-    # self.compute_solutions(cuts, verbose)
+    self.compute_solutions(cuts, print_sol = True)
     dic_sol = {"optimal_value": self.optimal_value}
     dic_sol.update({"primal_obj_value": self.primal_obj_value})
     dic_sol.update({"dual_obj_value": self.dual_obj_value})

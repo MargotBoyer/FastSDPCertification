@@ -80,8 +80,8 @@ class CommonConstraints(VariablesCall):
                 raise ValueError(
                     "No upper bound for the current constraint. Please set an upper bound."
                 )
+            
             if self.list_cstr[self.current_num_constraint]["num_matrix"].size == 0:
-
                 raise ValueError(
                     "No variable num_matrix for the current constraint. Please set a variable."
                 )
@@ -195,8 +195,8 @@ class CommonConstraints(VariablesCall):
         """
         Format the constraint to be added to the task : adds values of parameters for the same variables.
         """
-        if self.verbose:
-            print("Formatting constraint", self.current_num_constraint)
+        # if self.verbose:
+        #     print("STUDY : Formatting constraint", self.current_num_constraint)
 
         i, j, num_matrix, val = self.list_cstr[self.current_num_constraint][
             "elements"
@@ -207,8 +207,8 @@ class CommonConstraints(VariablesCall):
         self.list_cstr[self.current_num_constraint]["num_matrix"] = num_matrix
         self.list_cstr[self.current_num_constraint]["value"] = val
 
-        if self.verbose:
-            print(f"Formatted constraint {self.current_num_constraint} ")
+        # if self.verbose:
+        #     print(f"Formatted constraint {self.current_num_constraint} ")
 
         # i_ = np.array(self.list_cstr[self.current_num_constraint]["i"])
         # j_ = np.array(self.list_cstr[self.current_num_constraint]["j"])

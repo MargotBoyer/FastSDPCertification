@@ -352,6 +352,10 @@ def get_results(self, cuts: List, verbose: bool = False):
     """
     logger_mosek.info("Recuperation of optimization results...")
     logger_mosek.info("Verbose in get_results : %s", verbose)
+    if self.only_width_model:
+        print("STUDY : Only width model, getting width model results...")
+        self.get_results_width_model(cuts, verbose)
+        return
     status = self.handler.get_solution_status()
 
     print("Status of the solution: ", status)
@@ -431,6 +435,40 @@ def get_results(self, cuts: List, verbose: bool = False):
             self.benchmark_dataframe, dic_benchmark
         )
     print("benchmark_dataframe   : ", self.benchmark_dataframe)
+
+
+def get_results_width_model(self, cuts: List, verbose: bool = False):  
+    print("STUDY : Recuperation of optimization results for width model...") 
+    nb_constraints = len(self.handler.Constraints.list_cstr)
+    nb_variables = self.handler.print_num_variables()
+    dic_benchmark = {
+        "network": self.network_name,
+        "model": self.name,
+        "dataset": self.dataset_name,
+        "data_index": self.data_index,
+        "label": self.ytrue,
+        "label_predicted": self.network.label(self.x),
+        "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
+        "epsilon": self.epsilon,
+        "MATRIX_BY_LAYERS": self.MATRIX_BY_LAYERS,
+        "LAST_LAYER": self.LAST_LAYER,
+        "USE_STABLE_ACTIVES": self.use_active_neurons,
+        "USE_STABLE_INACTIVES": self.use_inactive_neurons,
+        "Nb_stable_inactives": len(self.stable_inactives_neurons),
+        "Nb_stable_actives": len(self.stable_actives_neurons),
+        "Nb_constraints": nb_constraints,
+        "Nb_variables": nb_variables,
+    }
+    dic_benchmark.update({cut: True for cut in cuts})
+    if "RLT" in cuts:
+        dic_benchmark.update({"RLT_prop": self.RLT_prop})
+    if self.benchmark_dataframe is None:
+        self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
+    else:
+        self.benchmark_dataframe = add_row_from_dict(
+            self.benchmark_dataframe, dic_benchmark
+        )
+    print("STUDY at the end of get_results_width_model: benchmark_dataframe   : ", self.benchmark_dataframe)
 
 
 def get_results_trivially_solved(self):

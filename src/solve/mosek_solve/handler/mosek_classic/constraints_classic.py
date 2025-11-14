@@ -154,18 +154,18 @@ class ConstraintsClassic(CommonConstraints):
         logger_mosek.info(f"Adding {len(self.list_cstr)} constraints to the task...")
         for ind_cstr in range(len(self.list_cstr)):
             name = self.list_cstr[ind_cstr]["name"]
-            if ind_cstr % 10000 == 0:
-                print(
-                    f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
-                )
-            elif ind_cstr >= int(0.99 * len(self.list_cstr)) and ind_cstr % 100 == 0:
-                print(
-                    f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
-                )
-            elif ind_cstr >= int(0.9995 * len(self.list_cstr)):
-                print(
-                    f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
-                )
+            # if ind_cstr % 10000 == 0:
+            #     print(
+            #         f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
+            #     )
+            # elif ind_cstr >= int(0.99 * len(self.list_cstr)) and ind_cstr % 100 == 0:
+            #     print(
+            #         f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
+            #     )
+            # elif ind_cstr >= int(0.9995 * len(self.list_cstr)):
+            #     print(
+            #         f"CALLBACK : Adding constraint {ind_cstr} / {len(self.list_cstr)} : {name}"
+            #     )
             i = self.list_cstr[ind_cstr]["i"]
             j = self.list_cstr[ind_cstr]["j"]
             num_matrix = self.list_cstr[ind_cstr]["num_matrix"]
@@ -193,10 +193,10 @@ class ConstraintsClassic(CommonConstraints):
                 self.list_cstr[ind_cstr]["ub"],
             )
 
-            if ind_cstr >= int(0.9995 * len(self.list_cstr)):
-                print(
-                    f"CALLBACK : constraint {ind_cstr} / {len(self.list_cstr)} : {name} successfully addded to the task."
-                )
+            # if ind_cstr >= int(0.9995 * len(self.list_cstr)):
+            #     print(
+            #         f"CALLBACK : constraint {ind_cstr} / {len(self.list_cstr)} : {name} successfully addded to the task."
+            #     )
             
            
         print("STUDY : All constraints added to the task.")

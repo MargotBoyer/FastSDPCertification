@@ -21,12 +21,13 @@ from tools import (
     create_folder,
     FullCertificationConfig,
     add_functions_to_class,
+    add_row_from_dict
 )
 from ..generic_solver import Solver
 from .handler.mosek_fusion import MosekFusionHandler
 from .handler.mosek_classic.handler_classic import MosekClassicHandler
 from .run_benchmark import create_all_cuts_to_test
-from .get_variables import get_results, get_results_trivially_solved
+from .get_variables import get_results, get_results_trivially_solved, get_results_width_model
 
 
 from tools import change_to_zero_negative_values
@@ -36,7 +37,7 @@ logger_mosek = logging.getLogger("Mosek_logger")
 
 
 @add_functions_to_class(
-    create_all_cuts_to_test, get_results, get_results_trivially_solved
+    create_all_cuts_to_test, get_results, get_results_trivially_solved, get_results_width_model
 )
 class MosekSolver(Solver):
     """
@@ -76,6 +77,7 @@ class MosekSolver(Solver):
         logger_mosek.info(f"Model {self.__class__.__name__} initialized.")
 
         self.initiate_solver()
+        self.only_width_model = True
 
     @staticmethod
     def parse_yaml_mosek(yaml_file):
@@ -158,6 +160,7 @@ class MosekSolver(Solver):
 
     def run_optimization(self, cuts: Dict, verbose: bool = False):
         try:
+            self.handler.is_robust = False
             if verbose : 
                 print("STUDY : RLT_prop in run_optimization: ", self.RLT_prop)
                 print("STUDY : Beginnning of run_optimization with cuts: ", cuts)
@@ -199,12 +202,19 @@ class MosekSolver(Solver):
             self.add_constraints(cuts)  # Constraints must be added after variables
             if verbose: 
                 print("STUDY : Constraints added.")
+            if self.only_width_model:
+                print("STUDY : Only width model, getting results without optimization...")
+                self.get_results(cuts, verbose)
+                return False
+            print("STUDY : not only width model, proceeding to optimization...")
             time_2 = time.time()
 
             # print(self.Constraints)
+            
             self.handler.initialize_constraints()
             if verbose :
                 print("STUDY : Constraints initialized.")
+                print("STUDY: Number of constraints: ", self.handler.get_num_constraints())
             # # STATISTICS ON PARAMETER VALUES
             # (
             #     histogram_coeff,
@@ -271,12 +281,12 @@ class MosekSolver(Solver):
             self.handler.Constraints.add_to_task()
             if verbose :
                 print("STUDY : Constraints added to the task.")
-            # self.handler.write_model(
-            #     cuts,
-            #     RLT_prop=self.RLT_prop,
-            #     data_index=self.data_index,
-            #     ytarget=self.ytarget,
-            # )
+            self.handler.write_model(
+                cuts,
+                RLT_prop=self.RLT_prop,
+                data_index=self.data_index,
+                ytarget=self.ytarget,
+            )
             self.handler.define_objective_sense()
             if verbose :
                 print("STUDY : Objective sense defined.")
@@ -326,15 +336,14 @@ class MosekSolver(Solver):
                     self.stable_actives_neurons,
                 )
                 print("is robust in run_optimization: ", self.handler.is_robust)
-            return self.handler.is_robust
+            
         except Exception as e:
             if verbose : 
                 print("ERROR : An error occurred during optimization:", str(e))
             logger_mosek.error("An error occurred during optimization: %s", str(e))
-            return False
+            self.handler.is_robust = False
         finally:
             self.handler.cleanup_mosek()
-            return self.handler.is_robust
 
     def solve(self, verbose: bool = False, only_bounds: bool = False):
         """
@@ -361,7 +370,8 @@ class MosekSolver(Solver):
                             print(f"Testing RLT_prop for ytarget {ytarget} ! ", RLT_prop)
                         self.RLT_prop = RLT_prop
                         self.ytarget = ytarget
-                        if self.run_optimization(cuts, verbose):
+                        self.run_optimization(cuts, verbose)
+                        if self.handler.is_robust:
                             if verbose :
                                 print("Robust solution found for ytarget:", ytarget)
                             break
@@ -372,7 +382,8 @@ class MosekSolver(Solver):
                     if verbose :
                         print(f"Testing RLT_prop ! ", RLT_prop)
                     self.RLT_prop = RLT_prop
-                    if self.run_optimization(cuts, verbose):
+                    self.run_optimization(cuts, verbose)
+                    if self.handler.is_robust:
                         if verbose :
                             print("Robust solution found for RLT_prop:", RLT_prop)
                         break

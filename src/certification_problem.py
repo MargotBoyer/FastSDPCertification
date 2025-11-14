@@ -123,6 +123,7 @@ class Certification_Problem:
                 "Number_targets",
             ]
         )
+        width_model_study = pd.DataFrame()
 
         for i, (x, ytrue) in enumerate(dataloader):
 
@@ -140,12 +141,12 @@ class Certification_Problem:
             # assert ytrue == y, "ytrue should match the label y"
 
             # SHARE
-            if i <= 55 or i!=56:
-                # print(
-                #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
-                # )
-                print("Skipping data sample ", i + 1, "for testing purposes.")
-                continue
+            # if i!=54:
+            #     # print(
+            #     #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
+            #     # )
+            #     print("Skipping data sample ", i + 1, "for testing purposes.")
+            #     continue
 
             print("i : ", i)
             # exit()
@@ -220,6 +221,7 @@ class Certification_Problem:
                 ],
                 ignore_index=True,
             )
+
 
         stable_actives_study.to_csv(
             get_project_path(

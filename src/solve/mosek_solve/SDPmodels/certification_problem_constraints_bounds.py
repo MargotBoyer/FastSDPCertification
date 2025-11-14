@@ -114,7 +114,7 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
         f"McCormick - Layer {k - 1}, neuron {neuron_prev}    ; Layer {k - 1+1}, neuron {neuron_next}  - 12b (RLT)"
     ):
         return
-
+    print("STUDY : add quad")
     self.handler.Constraints.add_quad_variable(
         var1="z",
         layer1=k,
@@ -126,6 +126,7 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
         front_of_matrix1=False,
         front_of_matrix2=True,
     )
+    print("STUDY : add linear var 1")
     self.handler.Constraints.add_linear_variable(
         var="z",
         layer=k,
@@ -133,6 +134,7 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
         value=-lb_prev,
         front_of_matrix=False,
     )
+    print("STUDY : add linear var 2")
     self.handler.Constraints.add_linear_variable(
         var="z",
         layer=k - 1,
