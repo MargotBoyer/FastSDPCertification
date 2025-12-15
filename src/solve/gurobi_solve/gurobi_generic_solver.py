@@ -36,6 +36,7 @@ class GurobiSolver(Solver):
         **kwargs,
     ):
         super().__init__(**kwargs)
+        print("STUDY : Initializing GurobiSolver...")
 
         self.LAST_LAYER = LAST_LAYER
         self.BETAS = BETAS
@@ -51,6 +52,7 @@ class GurobiSolver(Solver):
         self.b = self.network.b
 
         self.constant = 0
+        print("STUDY : GurobiSolver initialized.")
 
     @classmethod
     def from_yaml(cls, yaml_file, **kwargs):
@@ -58,21 +60,28 @@ class GurobiSolver(Solver):
         return cls(**params, **kwargs)
 
     def run_optimization(self, verbose: bool = False):
+        print("STUDY : Running optimization...")
         self.compute_bounds(self.bounds_method)
-
+        print("STUDY : Bounds computed.")
         self.initiate_solver()
+        print("STUDY : Solver initiated.")
         self.add_variables()
+        print("STUDY : Variables added.")
         self.add_objective()
+        print("STUDY : Objective added.")
         self.add_constraints()
+        print("STUDY : Constraints added.")
         self.print_solver_info(verbose)
+        print("STUDY : Starting optimization...")
         callback_data = CallbackData(self.m.getVars())
         callback_func = partial(
             mycallback, cbdata=callback_data, logfile=f"gurobi_{self.name}.log"
         )
+        print("STUDY : Callback function prepared.")
         self.m.optimize()  # self.callback
 
         results = self.get_results(verbose)
-        logger_gurobi.info("Time taken to solve: %s seconds", self.time_solving)
+        logger_gurobi.info("STUDY :Time taken to solve: %s seconds", self.time_solving)
         self.write_model()
         return results
 
@@ -114,14 +123,14 @@ class GurobiSolver(Solver):
         logger_gurobi.debug("Status: %s", self.m.Status)
         if self.m.Status == GRB.OPTIMAL:
             opt = self.m.ObjVal
-            print("Optimal objective value: ", opt)
+            print("STUDY : Optimal objective value: ", opt)
             print("Constant to add : ", self.constant)
             self.opt = opt + self.constant
             logger_gurobi.debug(
                 f"Optimal objective value (with added constant) for model {self.name}: %s",
                 self.opt,
             )
-            print("Optimal objective value (with added constant): ", self.opt)
+            print("STUDY : Optimal objective value (with added constant): ", self.opt)
             z_values = self.retrieve_z()
             logger_gurobi.debug(f"z values: {z_values}")
             if self.BETAS:
@@ -130,11 +139,11 @@ class GurobiSolver(Solver):
             else:
                 beta_values = None
         elif self.m.Status == GRB.INFEASIBLE:
-            logger_gurobi.error("Model is infeasible")
+            logger_gurobi.error("STUDY : Model is infeasible")
             # analyze_model(self.m)
         else:
             opt = self.m.ObjVal
-            print("UNKNOWN STATUS : Optimal objective value: ", opt)
+            print("STUDY : UNKNOWN STATUS : Optimal objective value: ", opt)
         dic_benchmark = {
             "network": self.network_name,
             "model": self.name,
@@ -145,6 +154,7 @@ class GurobiSolver(Solver):
             "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
             "epsilon": self.epsilon,
             "status": self.m.Status,
+            "optimal_value": getattr(self, "opt", None),
             "nb_nodes": self.nb_nodes,
             "time": self.time_solving,
             "bound_time": self.compute_bounds_time,
@@ -211,12 +221,18 @@ class GurobiSolver(Solver):
         """
         Solve the optimization problem using MOSEK.
         """
-        if "Lan" in self.__class__.__name__:
-            for ytarget in self.ytargets:
-                self.ytarget = ytarget
-                self.run_optimization(verbose)
-        else:
-            self.run_optimization(verbose)
+        if self.is_trivially_solved :
+            if verbose : 
+                print("STUDY : Trivially solved problem, no need to run optimization.")
+            self.get_results_trivially_solved()
+            return True
+        else :
+            if self.__class__.__name__=="LanQuad" or self.__class__.__name__=="ClassicLP" :
+                for ytarget in self.ytargets:
+                    self.ytarget = ytarget
+                    self.run_optimization(verbose=verbose)
+            else : 
+                self.run_optimization(verbose=verbose)
 
     def get_optimal_value(self):
         """

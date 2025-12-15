@@ -19,10 +19,10 @@ if __name__ == "__main__":
 
     yaml_file = f"{args.network}.yaml"  # "mnist_one_data_benchmark.yaml"
 
-    network = ReLUNN.from_yaml(f"config/{yaml_file}")
+    network = ReLUNN.from_yaml(get_project_path(f"config/mnist-{yaml_file}"))
     network = network.to(device)
 
-    config = load_adversarial_training_config(f"config/networks/{args.network}.yaml")
+    config = load_adversarial_training_config(get_project_path(f"config/networks/{args.network}.yaml"))
     robust_to_test_dataset = torch.load(
         get_project_path(config["evaluate_robustness_path"])
     )["dataset"]
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         robust_dataloader,
         device,
         {
-            "eps": 0.05,
+            "eps": 0.2,
             "alpha": 0.01,
             "steps": 40,
             "random_start": True,

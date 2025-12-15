@@ -15,6 +15,7 @@ from ..mosek_generic_solver import MosekSolver
 from networks import ReLUNN
 from .certification_problem_objective import objective_Lan
 from .certification_problem_constraints_bounds import (
+    L2_ball_bounds,
     quad_bounds,
     McCormick_inter_layers,
     all_Mc_Cormick_all_layers,
@@ -47,11 +48,14 @@ logger_mosek = logging.getLogger("Mosek_logger")
     all_Mc_Cormick_all_layers,
     all_4_McCormick,
     is_front_of_matrix,
+    L2_ball_bounds
 )
 class LanSDP(MosekSolver):
     def __init__(self, **kwargs):
         # print("kwargs in LanSDP: ", kwargs)
         super().__init__(certification_model_name="LanSDP", **kwargs)
+
+        print("STUDY : beginning LanSDP init")
         self.BETAS = False
         self.BETAS_Z = False
 
@@ -67,6 +71,7 @@ class LanSDP(MosekSolver):
         print("Neurones stables inactives: ", self.stable_inactives_neurons)
 
         logger_mosek.debug(f"Bounds for the network :  {self.L} and {self.U}")
+        print("STUDY : ending LanSDP init")
 
     def add_objective(self):
         """
@@ -94,6 +99,8 @@ class LanSDP(MosekSolver):
 
         # BOUNDS
         self.quad_bounds()
+        if self.norm == "L2":
+            self.L2_ball_bounds()
 
         # CUTS
         if "RLT" in cuts:

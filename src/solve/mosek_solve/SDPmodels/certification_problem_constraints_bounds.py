@@ -5,6 +5,41 @@ import logging
 logger_mosek = logging.getLogger("Mosek_logger")
 
 
+
+def L2_ball_bounds(self):
+    print("Adding L2 ball bounds constraint")
+    if self.handler.Constraints.new_constraint(
+            f"sum_(j=1)^{self.n[0]} (z_0j - x_j)^2 <= epsilon^2", label = "same_for_data"
+        ):
+            return
+    for j in range(self.n[0]):
+        # sum_{j=1}^{n0} (z_0j - x_j)^2 <= epsilon^2
+        
+        self.handler.Constraints.add_quad_variable(
+            var1="z",
+            layer1=0,
+            neuron1=j,
+            var2="z",
+            layer2=0,
+            neuron2=j,
+            value=1,
+            front_of_matrix1=True,
+            front_of_matrix2=True,
+        )
+        self.handler.Constraints.add_linear_variable(
+            var="z",
+            layer=0,
+            neuron=j,
+            value=-2 * self.x[j].item(),
+            front_of_matrix=True,
+        )
+        self.handler.Constraints.add_constant(value= (self.x[j].item()) ** 2)
+    self.handler.Constraints.add_bound(
+        bound_type=mosek.boundkey.up,
+        bound=self.epsilon ** 2,
+    )
+
+
 # ********************************************* BOUNDS ***************************************************************
 def quad_bounds(self):
     print("Adding quadratic bounds constraint")
@@ -114,7 +149,6 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
         f"McCormick - Layer {k - 1}, neuron {neuron_prev}    ; Layer {k - 1+1}, neuron {neuron_next}  - 12b (RLT)"
     ):
         return
-    print("STUDY : add quad")
     self.handler.Constraints.add_quad_variable(
         var1="z",
         layer1=k,
@@ -126,7 +160,6 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
         front_of_matrix1=False,
         front_of_matrix2=True,
     )
-    print("STUDY : add linear var 1")
     self.handler.Constraints.add_linear_variable(
         var="z",
         layer=k,
@@ -134,7 +167,6 @@ def McCormick_inter_layers(self, k: int, neuron_prev: int, neuron_next : int):
         value=-lb_prev,
         front_of_matrix=False,
     )
-    print("STUDY : add linear var 2")
     self.handler.Constraints.add_linear_variable(
         var="z",
         layer=k - 1,

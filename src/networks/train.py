@@ -99,7 +99,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config = load_adversarial_training_config(f"config/networks/{args.network}.yaml")
-    train_dataset = torch.load(get_project_path(config["train_path"]))  # ["dataset"]
+    train_dataset = torch.load(get_project_path(config["train_path"]))["dataset"]
 
     # print("Len of train_dataset: ", len(train_dataset))
     # print("train dataset: ", train_dataset)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     #     train_dataset, dataset_name=f"Train Dataset {args.data_modele}"
     # )
 
-    test_dataset = torch.load(get_project_path(config["test_path"]))  # ["dataset"]
+    test_dataset = torch.load(get_project_path(config["test_path"]))["dataset"]
     # print("Len of test_dataset: ", len(test_dataset))
 
     # analyze_class_distribution(
@@ -118,6 +118,9 @@ if __name__ == "__main__":
     robust_to_test_dataset = torch.load(
         get_project_path(config["evaluate_robustness_path"])
     )["dataset"]
+
+    print("STUDY : len =", len(train_dataset))
+    print("STUDY : dataset[0] =", train_dataset[0])  # <--- teste l'accès
 
     attack = config["adversarial_attack"]
 
@@ -166,8 +169,8 @@ if __name__ == "__main__":
     n = config["n"]
     K = config["K"]
 
-    print("n : ", n)
-    print("K : ", K)
+    print("STUDY : n : ", n)
+    print("STUDY : K : ", K)
 
     model = ReLUNN(
         K,
@@ -219,6 +222,16 @@ if __name__ == "__main__":
     print(state_dict)  # Affiche le contenu du state_dict
 
     name_network = config["name_network"]
+    
+    # print("STUDY K at the end of training : ", model.K)
+    # print("STUDY n at the end of training  : ", model.n)
+    # for k in range(K):
+    #     print(
+    #         f" STUDY LAYER = {k}"
+    #         + f"len(b[{k}]) = {len(model.b[k])}"
+    #         + f"len(W[{k}]) = {len(model.W[k])}"
+    #         + f"len(W[{k}][0]) = {len(model.W[k][0])}"
+    #     )
     if args.adv_train:
         print("SAVE ADV : ", f"data/models/{args.data_modele}_adv_{name_network}.pt")
 

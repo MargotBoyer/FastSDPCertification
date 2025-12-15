@@ -10,7 +10,7 @@ from tools import round_list_depth_2, change_to_zero_negative_values
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
+def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP", norm : str = "Linf"):
     """
     Compute the  L and U
 
@@ -26,7 +26,6 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
         L[0] = [max(L[0][j], 0) for j in range(len(L[0]))]
         return
 
-    norm = np.inf
     if not torch.is_tensor(x):
         x = torch.Tensor(x)
 
@@ -93,7 +92,14 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP"):
     bounded_model.eval()
     print("bounded_model device : ", next(bounded_model.parameters()).device)
 
-    ptb = PerturbationLpNorm(norm=norm, eps=epsilon)
+    if norm == "Linf":
+        print("STUDY : Using Linf norm for perturbation.")
+        ptb = PerturbationLpNorm(norm=np.inf, eps=epsilon)
+    elif norm == "L2":
+        ptb = PerturbationLpNorm(norm=2, eps=epsilon)
+        #ptb = PerturbationLpNorm(norm=np.inf, eps=epsilon**2)  # comparer les deux versions
+    else:
+        raise NotImplementedError(f"Norm {norm} not implemented.")
     bounded_image = BoundedTensor(x, ptb)
     if method == "alpha-CROWN":
         lb, ub = bounded_model.compute_bounds(x=(bounded_image,), method=method)
@@ -187,9 +193,10 @@ def compute_bounds(self, method: str = "IBP"):
     Args:
         method (str): The method to compute the bounds (CROWN, IBP, Linear, etc.).
     """
+    print("STUDY : Computing bounds with norm: ", self.norm, " ...")
     start_compute_bd_time = time.time()
     L, U = compute_bounds_data(
-        self.network, self.x, self.epsilon, self.n, self.K, method=method
+        self.network, self.x, self.epsilon, self.n, self.K, method=method, norm=self.norm
     )
     end_compute_bd_time = time.time()
     self.compute_bounds_time = end_compute_bd_time - start_compute_bd_time
@@ -226,9 +233,11 @@ def check_stability_neurons(
     self.stable_active_neurons = set(self.stable_actives_neurons)
     self.stable_inactive_neurons = set(self.stable_inactives_neurons)
     print(
-        "STUDY : Stable neurons : ",
+        "STUDY : Nb Stable neurons : ",
         len(self.stable_active_neurons) + len(self.stable_inactive_neurons),
     )
+    print("STUDY : stable active neurons : ", self.stable_active_neurons)
+    print("STUDY : stable inactive neurons : ", self.stable_inactive_neurons)
 
 
 def prune_adversarial_targets(self):

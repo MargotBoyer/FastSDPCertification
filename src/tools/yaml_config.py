@@ -114,6 +114,17 @@ class DataConfig(BaseModel):
         return self
 
 
+class InputBallConfig(BaseModel):
+    norm: str
+    @validator("norm")
+    def validate_sdp_model_name(cls, v, values):
+        if v not in ["Linf", "L2", "L1"]:
+            raise ValueError(
+                f"Input ball norm {v} must be one of 'Linf', 'L2', or 'L1'."
+            )
+        return v
+    epsilon: float
+
 class DatasetConfig(BaseModel):
     name: str
     path: str
@@ -192,6 +203,7 @@ class MosekSolverConfig(BaseModel):
         ]:
             raise ValueError("alpha_2 must be defined for MdSDP and MzbarSDP models.")
         return v
+    write_model : Optional[bool] = False
 
 
 class GurobiSolverConfig(BaseModel):
@@ -231,7 +243,7 @@ class ConicBundleConfig(BaseModel):
 
 
 class FullCertificationConfig(BaseModel):
-    epsilon: float
+    input_ball: InputBallConfig
     models: Optional[List[Union[MosekSolverConfig, GurobiSolverConfig]]] = None
     data: Union[DataConfig, DatasetConfig]
     network: NetworkConfig

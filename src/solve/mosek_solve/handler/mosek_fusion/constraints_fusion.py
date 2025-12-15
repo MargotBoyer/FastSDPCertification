@@ -97,7 +97,8 @@ class ConstraintsFusion(CommonConstraints):
             print(f"CALLBACK : Number of constraints : {len(self.list_cstr)}")
         time_start = time.time()
         for ind_cstr in range(len(self.list_cstr)):
-            # print("Adding constraint ", self.list_cstr[ind_cstr]["name"])
+            
+            print("Adding constraint ", self.list_cstr[ind_cstr]["name"])
             # if ind_cstr % 10 == 0:
             #     print(f"CALLBACK : Adding constraint {ind_cstr}/{len(self.list_cstr)}")
             #     time_stop = time.time()
@@ -110,6 +111,9 @@ class ConstraintsFusion(CommonConstraints):
                 self.list_cstr[ind_cstr]["j"],
                 self.list_cstr[ind_cstr]["value"],
             )
+            if "ReLU" in self.list_cstr[ind_cstr]["name"] and "upper" in self.list_cstr[ind_cstr]["name"] :
+                name = self.list_cstr[ind_cstr]["name"] 
+                print(f"STUDY constraint = {name}; num = {num_matrix}; i = {i}; j = {j}; value = {value}")
 
             expression = Expr.constTerm(0.0)
             for num_matrix, i, j, value in zip(

@@ -1,0 +1,26 @@
+data : "cifar10"
+train_path  : "data/datasets/cifar10_train_all.pth"
+test_path   : "data/datasets/cifar10_test_all.pth"
+evaluate_robustness_path : "data/datasets/cifar10_subset_10_per_class.pth"
+num_classes : 10
+# Projected Gradient Descent (PGD)
+adversarial_attack : "PGD"
+epsilon : 0.03137
+epsilon_test : 0.03137
+alpha : 0.005
+steps : 40
+random_start : true
+num_epochs : 200
+lr : 0.001
+batch_size : 128
+n :
+  - 3072
+  - 100
+  - 100
+  - 100
+  - 10
+K : 4
+name_network : "fcnb"
+
+
+  

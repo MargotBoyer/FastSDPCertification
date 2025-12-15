@@ -1,27 +1,21 @@
 data :
-  name : "mnist"
-  path :  "data/datasets/MNIST/ConcatMNIST/67_classes/concatmnist_subset_1_per_class.pth"
-  num_classes : 67
-  num_samples : 67
+  name : "cifar10"
+  path : "data/datasets/cifar10_subset_10_per_class.pth"
+  num_classes : 10
+  num_samples : 100
 
-input_ball : 
-  norm : "Linf"
-  epsilon : 0.05  
-
+epsilon : 0.03137   
 
 network :
-  name : "concatmnist-6x100-67-classes"
-  path : "data/models/concatmnist_adv_concatmnist-6x100-67-classes.pt"
-  K : 7
-  n : 
-    - 784
+  name : "fcnb"
+  path : "data/models/cifar10_adv_fcnb.pt"
+  K : 4
+  n :
+    - 3072
     - 100
     - 100
     - 100
-    - 100
-    - 100
-    - 100
-    - 67
+    - 10
 
 
 
@@ -58,48 +52,52 @@ models :
   #   use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
   #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
 
-  # # SDPt
-  # - certification_model_name : "LanSDP"
-  #   cuts : 
-  #   - "RLT"
-  #   - "triangularization"
-  #   RLT_props : 
-  #   - 0.1
-  #   # - 0.2
-  #   # - 0.3
-  #   # - 0.5
-  #   all_combinations_cuts : false
-  #   MATRIX_BY_LAYERS: true
-  #   LAST_LAYER: false
-  #   use_fusion: false  # Whether to use the fusion API for MOSEK
-  #   use_callback : false # Whether to use the callback for MOSEK
-  #   use_active_neurons: true # Whether to use active neurons in the certification problem as variables
-  #   use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
-  #   keep_penultimate_actives : true
-  #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
-
-
-
-  - certification_model_name : "MdSDP"
+  # SDPt
+  - certification_model_name : "LanSDP"
     cuts : 
     - "RLT"
     - "triangularization"
-    - "Tij"
-    - "beta_logits_comparaison_1"
-    - "beta_logits_comparaison_2"
-    - "McC_betaz_logits"
-    - "Tij_before_penultimate_layer"
     RLT_props : 
-    - 1.
+    # - 0.
+    # - 0.1
+    # - 0.005
+    - 0.1
+    #- 0.2
+    # - 0.3
+    # - 0.1
+    # - 0.15
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
     use_fusion: false  # Whether to use the fusion API for MOSEK
     use_callback : false # Whether to use the callback for MOSEK
-    use_active_neurons: false # Whether to use active neurons in the certification problem as variables
+    use_active_neurons: true # Whether to use active neurons in the certification problem as variables
     use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
-    keep_penultimate_actives : true # Whether to keep the penultimate layer active neurons in the certification problem
+    keep_penultimate_actives : true
     bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
+
+
+
+  # - certification_model_name : "MdSDP"
+  #   cuts : 
+  #   - "RLT"
+  #   - "triangularization"
+  #   - "Tij"
+  #   - "beta_logits_comparaison_1"
+  #   - "beta_logits_comparaison_2"
+  #   - "McC_betaz_logits"
+  #   - "Tij_before_penultimate_layer"
+  #   RLT_props :
+  #   - 1.
+  #   all_combinations_cuts : false
+  #   MATRIX_BY_LAYERS: true
+  #   LAST_LAYER: false
+  #   use_fusion: false  # Whether to use the fusion API for MOSEK
+  #   use_callback : false # Whether to use the callback for MOSEK
+  #   use_active_neurons: false # Whether to use active neurons in the certification problem as variables
+  #   use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
+  #   keep_penultimate_actives : true # Whether to keep the penultimate layer active neurons in the certification problem
+  #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
 
 
 
@@ -114,7 +112,6 @@ models :
   #   - "Tij_before_penultimate_layer"
   #   RLT_props : 
   #   - 0.1
-  #   - 0.2
   #   all_combinations_cuts : false
   #   MATRIX_BY_LAYERS: true
   #   LAST_LAYER: false
@@ -126,3 +123,11 @@ models :
   #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
   #   alpha_1: 0.5
   #   alpha_2: 0.5
+
+
+  # - certification_model_name : "ClassicLP"
+  #   LAST_LAYER: false
+  #   use_active_neurons: true # Whether to use active neurons in the certification problem as variables
+  #   use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
+  #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
+

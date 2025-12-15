@@ -10,15 +10,16 @@ epsilon_test : 0.040
 alpha : 0.01
 steps : 40
 random_start : true
-num_epochs : 20
+num_epochs : 200
 lr : 0.001
 batch_size : 128
 K : 3
 n : 
   - 2
   - 10
-  - 6
+  - 10
   - 3
+
 name_network :  "blob_nn"
 
 

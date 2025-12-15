@@ -7,6 +7,7 @@ from networks import ReLUNN
 from pydantic import ValidationError
 import datetime
 
+from .getting_results import get_results_trivially_solved
 from bounds import (
     compute_bounds,
     check_stability_neurons,
@@ -21,11 +22,15 @@ from tools import (
     change_to_zero_negative_values,
 )
 
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 @add_functions_to_class(
-    compute_bounds, check_stability_neurons, prune_adversarial_targets
+    compute_bounds,
+    check_stability_neurons,
+    prune_adversarial_targets,
+    get_results_trivially_solved,
 )
 class Solver:
     def __init__(
@@ -44,36 +49,42 @@ class Solver:
         self.network = network.to(device)
         self.K = network.K
         self.n = network.n
-        self.W = round_list_depth_3(network.W)
-        self.b = round_list_depth_2(network.b)
+        self.W = round_list_depth_3(network.W, decimal = 3)  ### remettre à 6 par defaut
+        self.b = round_list_depth_2(network.b, decimal = 3)   ### remettre à 6 par defaut
 
         self.n = np.array(self.n)
         self.W = [np.array(self.W[k - 1]) for k in range(1, self.K + 1)]
 
         self.b = [np.array(self.b[k]) for k in range(self.K)]
 
-
         self.dataset = kwargs.get("dataset")
         self.epsilon = epsilon
+        self.norm = kwargs.get("norm", "Linf")
+        print("STUDY : Norm used in Solver: ", self.norm)
         self.x = x
+        print("STUDY x = ", self.x)
         self.ytrue = ytrue
+        print("STUDY ytrue = ", self.ytrue)
 
         self.ytarget = kwargs.get("ytarget", None)
 
         if "Lan" in self.__class__.__name__ and self.ytarget is not None:
             self.ytargets = [self.ytarget]
         else:
-            self.ytargets = [
-                j for j in range(self.n[self.K]) if j != self.ytrue
-            ]
+            self.ytargets = [j for j in range(self.n[self.K]) if j != self.ytrue]
 
         self.bounds_method = kwargs.get("bounds_method")
         self.L = L
         self.U = U
+        
         if self.L is None or self.U is None:
             self.compute_bounds(
                 method=self.bounds_method,
             )
+        ### BORNES (A COMMENTER APRES TEST)
+        self.U = round_list_depth_2(self.U, decimal = 3)
+        self.L = round_list_depth_2(self.L, decimal = 3)
+        #####
 
         print(
             "STUDY : use active neurons: ",
@@ -91,13 +102,13 @@ class Solver:
             use_active_neurons=use_active_neurons,
             use_inactive_neurons=use_inactive_neurons,
         )
+
         # print('STUDY in generic solver: stable inactive neurons: ', self.stable_inactives_neurons)
         # print('STUDY in generic solver: stable active neurons: ', self.stable_actives_neurons)
         # for k in range(len(self.L)):
         #     for j in range(len(self.L[k])):
         #         self.L[k][j] -= 1
         #         self.U[k][j] += 1
-
 
         self.U_above_zero = change_to_zero_negative_values(
             self.U, dim=2
@@ -127,6 +138,22 @@ class Solver:
         self.data_index = kwargs.get("data_index", 0)
         self.network_name = kwargs.get("network_name", "ReLUNN")
         self.dataset_name = kwargs.get("dataset_name")
+        print("STUDY : everything good in init")
+
+        print("STUDY : n : ", self.n)
+        print("STUDY : K ⁼ ", self.K)
+        with open("weights_nn.txt", "w") as f:
+            f.write(f"K = {self.K}, n = {self.n}")
+            for k in range(1, self.K + 1):
+                f.write(f"\n\n\n\n     Layer : {k}, taille : {self.n[k]}")
+                for j in range(self.n[k]):
+
+                    f.write(f"\n\n         Neuron : {j}")
+                    f.write(f"\n            W = {self.W[k - 1][j]}")
+                    f.write(f"\n            b = {self.b[k - 1][j]}")
+                    f.write(f"\n            U = {self.U[k][j]}, L = {self.L[k][j]}")
+
+        self.ytargets = [0,1]
 
         self.is_trivially_solved = self.ytargets == []
         print("STUDY: is trivially solved: ", self.is_trivially_solved)

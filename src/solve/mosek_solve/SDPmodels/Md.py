@@ -17,6 +17,7 @@ from ..mosek_generic_solver import MosekSolver
 from networks import ReLUNN
 from .certification_problem_objective import objective_Md
 from .certification_problem_constraints_bounds import (
+    L2_ball_bounds,
     quad_bounds,
     McCormick_inter_layers,
     all_Mc_Cormick_all_layers,
@@ -67,6 +68,7 @@ logger_mosek = logging.getLogger("Mosek_logger")
     McCormick_beta_z_with_penultimate_layer,
     z_j2_beta_j2_greater_than_zj,
     z_j2_beta_j2_less_than_zj,
+    L2_ball_bounds
 )
 class MdSDP(MosekSolver):
     def __init__(self, **kwargs):
@@ -103,6 +105,8 @@ class MdSDP(MosekSolver):
 
         # BOUNDS
         self.quad_bounds()
+        if self.norm == "L2":
+            self.L2_ball_bounds()
 
         # BETA
         self.discrete_betas()

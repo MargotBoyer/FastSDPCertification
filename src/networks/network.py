@@ -22,6 +22,7 @@ class ReLUNN(nn.Module):
         self.b = b
         self.n = n
 
+
         self.layers = nn.ModuleDict()
         self.penultimate_layer = "Layer_" + str(K - 1) + "_Linear"
         for k in range(1, K + 1):
@@ -84,10 +85,16 @@ class ReLUNN(nn.Module):
             print("file : ", yaml_file)
             K = config["network"]["K"]
             n = config["network"]["n"]
+            
 
             path = get_project_path(config["network"]["path"].replace("\\", "/"))
+
+            print("K : ", K)
+            print("n : ", n)
             parametres = torch.load(path)
 
+
+            print("parametres : ", parametres)
             # net = cls(K, n)
             # net.load_state_dict(parametres)
 
@@ -100,6 +107,7 @@ class ReLUNN(nn.Module):
                 bias_k = f"layers.Layer_{k}_Linear.bias"
                 in_features = parametres[weight_k].shape[1]
                 out_features = parametres[weight_k].shape[0]
+
                 n.append(in_features)
                 W.append(parametres[weight_k].tolist())
                 b.append(parametres[bias_k].tolist())

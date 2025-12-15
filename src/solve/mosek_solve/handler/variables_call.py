@@ -669,64 +669,112 @@ class VariablesCall:
         equivalent_values_neurons, constant = self.layers_values.get_equivalent_values(
             layer_prev, neuron_prev
         )
-        print(
-            f"RELU STABLE bound_type: {bound_type}, bound_sense: {bound_sense}, weight = {weight}, constant = {constant}"
-        )
+        print()
+        print(f"STUDY RELU Layer_prev : {layer_prev}, neuron_prev = {neuron_prev} : constant = {constant}, quivalent_values = ", equivalent_values_neurons)
+     
+        # print(
+        #     f"RELU STABLE bound_type: {bound_type}, bound_sense: {bound_sense}, weight = {weight}, constant = {constant}"
+        # )
         for (layer1, neuron1), val1 in equivalent_values_neurons.items():
-            print(
-                f"RELU STABLE: layer1 = {layer1}, neuron1 = {neuron1}, val1 = {val1}:"
-            )
-            print(f"RELU STABLE: val1 * weight = {val1 * weight}")
+            # print(
+            #     f"RELU STABLE: layer1 = {layer1}, neuron1 = {neuron1}, val1 = {val1}:"
+            # )
+            # print(f"RELU STABLE: val1 * weight = {val1 * weight}")
             if bound_type == "one_variable":
-                if (bound_sense == "upper") and (
-                    (weight > 0 and val1 >= 0) or (weight <= 0 and val1 <= 0)
-                ):
+                if (bound_sense == "upper") :
+                    if (weight > 0 and val1 >= 0) or (weight <= 0 and val1 <= 0) :
 
-                    self.add_z_bound_one_variable_2(
-                        layer1=layer1,
-                        neuron1=neuron1,
-                        layer2=layer_next,
-                        neuron2=neuron_next,
-                        front_of_matrix1=front_of_matrix_prev,
-                        front_of_matrix2=front_of_matrix_next,
-                        value=weight * val1,
-                    )
+                        self.add_z_bound_one_variable_2(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
+                    else : 
+                        self.add_z_bound_one_variable_1(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
+                
 
                 else:
-                    self.add_z_bound_one_variable_1(
-                        layer1=layer1,
-                        neuron1=neuron1,
-                        layer2=layer_next,
-                        neuron2=neuron_next,
-                        front_of_matrix1=front_of_matrix_prev,
-                        front_of_matrix2=front_of_matrix_next,
-                        value=weight * val1,
-                    )
+                    if (weight > 0 and val1 >= 0) or (weight <= 0 and val1 <= 0) :
+
+                        self.add_z_bound_one_variable_1(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
+                    else : 
+                        self.add_z_bound_one_variable_2(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
+                
             else:
-                if (bound_sense == "upper") and (
-                    (weight > 0 and val1 >= 0) or (weight <= 0 and val1 <= 0)
-                ):
-                    self.add_z_bound_composed_4(
-                        layer1=layer1,
-                        neuron1=neuron1,
-                        layer2=layer_next,
-                        neuron2=neuron_next,
-                        front_of_matrix1=front_of_matrix_prev,
-                        front_of_matrix2=front_of_matrix_next,
-                        value=weight * val1,
-                    )
+                if (bound_sense == "upper"):
+                    
+                    if (weight > 0 and val1 >= 0) or (weight <= 0 and val1 <= 0):
+                        self.add_z_bound_composed_4(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
+                    else : 
+                        self.add_z_bound_composed_3(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
 
                 else:
-                    self.add_z_bound_composed_3(
-                        layer1=layer1,
-                        neuron1=neuron1,
-                        layer2=layer_next,
-                        neuron2=neuron_next,
-                        front_of_matrix1=front_of_matrix_prev,
-                        front_of_matrix2=front_of_matrix_next,
-                        value=weight * val1,
-                    )
+                    if (weight > 0 and val1 >= 0) or (weight <= 0 and val1 <= 0):
+                        self.add_z_bound_composed_3(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
+                    else : 
+                        self.add_z_bound_composed_4(
+                            layer1=layer1,
+                            neuron1=neuron1,
+                            layer2=layer_next,
+                            neuron2=neuron_next,
+                            front_of_matrix1=front_of_matrix_prev,
+                            front_of_matrix2=front_of_matrix_next,
+                            value=weight * val1,
+                        )
 
+        print(f"STUDY RELU layer_next = {layer_next}, neuron_next = {neuron_next}; layer_prev = {layer_prev}, neuron_prev = {neuron_prev} : weight = {weight}, constant = {constant}")
         self.add_linear_variable(
             var="z",
             layer=layer_next,
@@ -746,11 +794,12 @@ class VariablesCall:
         value: float,
     ):
         """z_{layer2} z_{layer1} >= L_{layer1} z_{layer2}"""
-        print(
-            f"RELU : z_{layer2}_{neuron2}, value = -{value}*L={self.L[layer1][neuron1]}    add_z_bound_one_variable_1 "
-        )
+        #print("STUDY RELU : add_z_bound_composed_1")
+        # print(
+        #     f"RELU : z_{layer2}_{neuron2}, value = -{value}*L={self.L[layer1][neuron1]}    add_z_bound_one_variable_1 "
+        # )
         if layer1 > 0:
-            print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
+            # print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
             return
         self.add_linear_variable(
             var="z",
@@ -771,9 +820,10 @@ class VariablesCall:
         value: float,
     ):
         """z_{layer2} z_{layer1} <= U_{layer1} z_{layer2}"""
-        print(
-            f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*U={self.U[layer1][neuron1]}    add_z_bound_one_variable_2 "
-        )
+        # print(
+        #     f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*U={self.U[layer1][neuron1]}    add_z_bound_one_variable_2 "
+        # )
+        #print("STUDY RELU : add_z_bound_composed_2")
         self.add_linear_variable(
             var="z",
             layer=layer2,
@@ -793,9 +843,10 @@ class VariablesCall:
         value: float,
     ):
         """z_{layer2} z_{layer1} >= U_{layer1} z_{layer2} + U_{layer2} z_{layer1} - U_{layer1} U_{layer2}"""
-        print(
-            f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*U={self.U[layer1][neuron1]}    add_z_bound_composed_3 "
-        )
+        # print(
+        #     f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*U={self.U[layer1][neuron1]}    add_z_bound_composed_3 "
+        # )
+        #print("STUDY RELU : add_z_bound_composed_3")
         self.add_linear_variable(
             var="z",
             layer=layer2,
@@ -803,9 +854,9 @@ class VariablesCall:
             front_of_matrix=front_of_matrix2,
             value=-value * self.U[layer1][neuron1],
         )
-        print(
-            f"RELU STABLE: z_{layer1}_{neuron1}, value = -{value}*U={self.U[layer2][neuron2]}    add_z_bound_composed_3 "
-        )
+        # print(
+        #     f"RELU STABLE: z_{layer1}_{neuron1}, value = -{value}*U={self.U[layer2][neuron2]}    add_z_bound_composed_3 "
+        # )
         self.add_linear_variable(
             var="z",
             layer=layer1,
@@ -826,9 +877,10 @@ class VariablesCall:
         value: float,
     ):
         """z_{layer2} z_{layer1} <= L_{layer1} z_{layer2} + U_{layer2} z_{layer1} - L_{layer1} U_{layer2}"""
-        print(
-            f"RELU STABLE: z_{layer1}_{neuron1}, value = -{value}*U={self.U[layer2][neuron2]}    add_z_bound_composed_3 "
-        )
+        # print(
+        #     f"RELU STABLE: z_{layer1}_{neuron1}, value = -{value}*U={self.U[layer2][neuron2]}    add_z_bound_composed_3 "
+        # )
+        #print("STUDY RELU : add_z_bound_composed_4")
         self.add_linear_variable(
             var="z",
             layer=layer1,
@@ -837,11 +889,11 @@ class VariablesCall:
             value=-value * self.U[layer2][neuron2],
         )
         if layer1 > 0:
-            print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
+            # print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
             return
-        print(
-            f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*L={self.L[layer1][neuron1]}    add_z_bound_composed_3 "
-        )
+        # print(
+        #     f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*L={self.L[layer1][neuron1]}    add_z_bound_composed_3 "
+        # )
         self.add_linear_variable(
             var="z",
             layer=layer2,

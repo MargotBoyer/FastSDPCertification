@@ -30,7 +30,12 @@ device_ = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Certification_Problem:
     def __init__(
-        self, network: networks.ReLUNN, epsilon: float, dataset: TensorDataset, **kwargs
+        self,
+        network: networks.ReLUNN,
+        epsilon: float,
+        norm: str,
+        dataset: TensorDataset,
+        **kwargs,
     ):
         """Initialize the certification problem.
         Args:
@@ -41,8 +46,11 @@ class Certification_Problem:
         print("Initializing Certification Problem ...")
         self.network = network.to(device_ if kwargs.get("use_cuda", True) else "cpu")
         self.epsilon = epsilon
+        self.norm = norm
         self.dataset = dataset
         self.models = kwargs.get("models", [])
+        print("Models in certification problem:", self.models)
+
         self.network_name = kwargs.get("network_name", network.name)
         self.dataset_name = kwargs.get("dataset_name")
         self.yaml_file = kwargs.get("yaml_file", None)
@@ -83,12 +91,15 @@ class Certification_Problem:
         with open(f"config/{yaml_file}", "r") as file:
             config = yaml.safe_load(file)
             print("CONFIG  inf CERTIFICATION PROBLEM:     ", config)
-            epsilon = config["epsilon"]
+            epsilon = config["input_ball"]["epsilon"]
+            norm = config["input_ball"]["norm"]
+            print(f"Epsilon: {epsilon}, Norm: {norm}")
         validated_config = FullCertificationConfig(**config)
         print("Data name from config:", validated_config.data.name)
         return cls(
             network,
             epsilon,
+            norm,
             dataset,
             models=validated_config.models,
             network_name=validated_config.network.name,
@@ -141,12 +152,14 @@ class Certification_Problem:
             # assert ytrue == y, "ytrue should match the label y"
 
             # SHARE
-            # if i!=54:
-            #     # print(
-            #     #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
-            #     # )
-            #     print("Skipping data sample ", i + 1, "for testing purposes.")
-            #     continue
+            if i>=1:
+                # print(
+                #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
+                # )
+                # print("Skipping data sample ", i + 1, "for testing purposes.")
+                continue
+
+        
 
             print("i : ", i)
             # exit()
@@ -170,6 +183,7 @@ class Certification_Problem:
                 model_instance = model_class(
                     network=self.network,
                     epsilon=self.epsilon,
+                    norm=self.norm,
                     x=x,
                     ytrue=ytrue.item(),
                     data_index=i,
@@ -178,6 +192,7 @@ class Certification_Problem:
                     folder_name=f"results/benchmark/{self.title}/{title_run}",
                     **dict_infos,
                 )
+                print("STUDY : Model instance created")
                 nb_actives = len(model_instance.stable_actives_neurons)
                 nb_inactives = len(model_instance.stable_inactives_neurons)
                 nb_targets = len(model_instance.ytargets)
@@ -221,7 +236,6 @@ class Certification_Problem:
                 ],
                 ignore_index=True,
             )
-
 
         stable_actives_study.to_csv(
             get_project_path(

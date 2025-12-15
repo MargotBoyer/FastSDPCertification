@@ -57,11 +57,17 @@ def evaluate_robust(model, testloader, device, pgd_config, max_batches=None):
     total = 0
 
     for batch_idx, (inputs, labels) in enumerate(testloader):
+        # if batch_idx != 8 and batch_idx != 9:
+        #     continue
+
         if max_batches and batch_idx >= max_batches:
             break
-
+        print("Evaluating batch ", batch_idx)
         inputs, labels = inputs.to(device), labels.to(device)
 
+        #print("STUDYY : batch_index =", batch_idx)
+        # inputs = inputs[1:6]
+        # labels = labels[1:6]
         # Générer exemples adversariaux
         with torch.enable_grad():
             adv_inputs = pgd_attack.forward(inputs, labels)
@@ -71,7 +77,7 @@ def evaluate_robust(model, testloader, device, pgd_config, max_batches=None):
             outputs = model(adv_inputs)
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
-            print(f"STUDY : predicted : {predicted}, label = {labels}")
+            #print(f"STUDY : predicted : {predicted}, label = {labels}")
             correct += (predicted == labels).sum().item()
 
     return correct / total

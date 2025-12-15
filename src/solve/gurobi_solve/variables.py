@@ -16,7 +16,7 @@ def _add_variable_z(
     """
     Add the variable z to the model.
     """
-    self.z[layer, neuron] = self.m.addVar(lb=lb - delta, ub=ub, vtype=GRB.CONTINUOUS)
+    self.z[layer, neuron] = self.m.addVar(lb=lb - delta, ub=ub+delta, vtype=GRB.CONTINUOUS)
     logger_gurobi.debug(
         "Adding variable z[%s,%s] with bounds [%s, %s]",
         layer,

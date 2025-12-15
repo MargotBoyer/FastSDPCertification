@@ -295,7 +295,7 @@ def get_matrices_variables(self, cuts: List):
     return matrices
 
 
-def compute_solutions(self, cuts: List, print_sol: bool = True):
+def compute_solutions(self, cuts: List, print_sol: bool = False):
     """
     Get the solutions and dual variables of the optimization problem.
     """
@@ -394,6 +394,7 @@ def get_results(self, cuts: List, verbose: bool = False):
             cuts
         )
         dic_benchmark.update(dic_info_optimal_values)
+        print("CALLBACK : dic_info_optimal_values: ", dic_info_optimal_values)
 
     elif self.handler.is_status_infeasible():
         print ("CALLBACK : infeasible status")
@@ -417,6 +418,7 @@ def get_results(self, cuts: List, verbose: bool = False):
             dic_info_optimal_values = self.handler.add_all_infos_optimal_values_to_dic(
                 cuts,
             )
+            print("CALLBACK : dic_info_optimal_values: ", dic_info_optimal_values)
             dic_benchmark.update(dic_info_optimal_values)
         except Exception as e:
             print("ERROR in get_results : ", e)
@@ -429,8 +431,10 @@ def get_results(self, cuts: List, verbose: bool = False):
 
     print("dic benchmark keys : ", dic_benchmark)
     if self.benchmark_dataframe is None:
+        print("STUDY : self.benchmark is None ")
         self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
     else:
+        print("STUDY : self.benchmark is not None ", self.benchmark_dataframe)
         self.benchmark_dataframe = add_row_from_dict(
             self.benchmark_dataframe, dic_benchmark
         )
@@ -469,44 +473,6 @@ def get_results_width_model(self, cuts: List, verbose: bool = False):
             self.benchmark_dataframe, dic_benchmark
         )
     print("STUDY at the end of get_results_width_model: benchmark_dataframe   : ", self.benchmark_dataframe)
-
-
-def get_results_trivially_solved(self):
-    """
-    Recuperation of optimization results for trivially solved problems
-    """
-    logger_mosek.info(
-        "Recuperation of optimization results for trivially solved problems..."
-    )
-    dic_benchmark = {
-        "network": self.network_name,
-        "model": self.name,
-        "dataset": self.dataset_name,
-        "data_index": self.data_index,
-        "label": self.ytrue,
-        "label_predicted": self.network.label(self.x),
-        "target": self.ytarget if "Lan" in self.__class__.__name__ else None,
-        "epsilon": self.epsilon,
-        "status": "trivially_solved",
-        "iterations": 0,
-        "time": 0.0,
-        "pretreatment_time": 0.0,
-        "bound_time": self.compute_bounds_time,
-        "MATRIX_BY_LAYERS": self.MATRIX_BY_LAYERS,
-        "LAST_LAYER": self.LAST_LAYER,
-        "USE_STABLE_ACTIVES": self.use_active_neurons,
-        "USE_STABLE_INACTIVES": self.use_inactive_neurons,
-        "Nb_stable_inactives": len(self.stable_inactives_neurons),
-        "Nb_stable_actives": len(self.stable_actives_neurons),
-    }
-    print("dic benchmark keys : ", dic_benchmark)
-    if self.benchmark_dataframe is None:
-        self.benchmark_dataframe = pd.DataFrame(dic_benchmark, index=[0])
-    else:
-        self.benchmark_dataframe = add_row_from_dict(
-            self.benchmark_dataframe, dic_benchmark
-        )
-    print("\n \n self.benchmark_dataframe   : ", self.benchmark_dataframe)
 
 
 def save_matrix_png(self, mat, name_solution, cuts: List):

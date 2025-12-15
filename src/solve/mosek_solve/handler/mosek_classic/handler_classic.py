@@ -183,7 +183,7 @@ class MosekClassicHandler:
         # self.task.putintparam(mosek.iparam.presolve_use, 0)
         # Utiliser le simplexe dual
         ##task.putintparam(mosek.iparam.optimizer, mosek.optimizertype.dual_simplex)
-        print("4 threads used for MOSEK solver")
+        print("STUDY : 4 threads used for MOSEK solver")
         self.task.putintparam(mosek.iparam.num_threads, 4)
         # self.task.putdouparam(mosek.dparam.intpnt_co_tol_rel_gap, 1e-3)  # Gap relatif (défaut: 1e-8)
         # self.task.putdouparam(mosek.dparam.intpnt_co_tol_pfeas, 1e-3)    # Faisabilité primale
@@ -427,8 +427,8 @@ class MosekClassicHandler:
         dual_variables = self.task.gety(mosek.soltype.itr)
 
         # Check solution status
-        prosta = self.task.getprosta()
-        dusta = self.task.getdusta()
+        prosta = self.task.getprosta(mosek.soltype.itr)
+        dusta = self.task.getdusta(mosek.soltype.itr)
 
         print(f"Primal status: {prosta}")
         print(f"Dual status: {dusta}")

@@ -27,7 +27,7 @@ from ..generic_solver import Solver
 from .handler.mosek_fusion import MosekFusionHandler
 from .handler.mosek_classic.handler_classic import MosekClassicHandler
 from .run_benchmark import create_all_cuts_to_test
-from .get_variables import get_results, get_results_trivially_solved, get_results_width_model
+from .get_variables import get_results, get_results_width_model
 
 
 from tools import change_to_zero_negative_values
@@ -37,7 +37,7 @@ logger_mosek = logging.getLogger("Mosek_logger")
 
 
 @add_functions_to_class(
-    create_all_cuts_to_test, get_results, get_results_trivially_solved, get_results_width_model
+    create_all_cuts_to_test, get_results, get_results_width_model
 )
 class MosekSolver(Solver):
     """
@@ -74,10 +74,15 @@ class MosekSolver(Solver):
         self.alpha_1 = kwargs.get("alpha_1")
         self.alpha_2 = kwargs.get("alpha_2")
 
+        self.write_model = kwargs.get("write_model")
+
         logger_mosek.info(f"Model {self.__class__.__name__} initialized.")
 
+        print("STUDY : init in Mosek Solver presque done")
+
         self.initiate_solver()
-        self.only_width_model = True
+        self.only_width_model = False
+        print("STUDY : init in Mosek Solver tout done")
 
     @staticmethod
     def parse_yaml_mosek(yaml_file):
@@ -214,7 +219,7 @@ class MosekSolver(Solver):
             self.handler.initialize_constraints()
             if verbose :
                 print("STUDY : Constraints initialized.")
-                print("STUDY: Number of constraints: ", self.handler.get_num_constraints())
+                print("STUDY: Number of constraints: ", len(self.handler.Constraints.list_cstr))
             # # STATISTICS ON PARAMETER VALUES
             # (
             #     histogram_coeff,
@@ -281,12 +286,13 @@ class MosekSolver(Solver):
             self.handler.Constraints.add_to_task()
             if verbose :
                 print("STUDY : Constraints added to the task.")
-            self.handler.write_model(
-                cuts,
-                RLT_prop=self.RLT_prop,
-                data_index=self.data_index,
-                ytarget=self.ytarget,
-            )
+            if self.write_model : 
+                self.handler.write_model(
+                    cuts,
+                    RLT_prop=self.RLT_prop,
+                    data_index=self.data_index,
+                    ytarget=self.ytarget,
+                )
             self.handler.define_objective_sense()
             if verbose :
                 print("STUDY : Objective sense defined.")

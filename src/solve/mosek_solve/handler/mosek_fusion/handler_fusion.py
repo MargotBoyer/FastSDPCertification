@@ -23,6 +23,7 @@ from .results_fusion import (
 from ..common_handler_functions import (
     print_index_variables_matrices,
     num_matrices_variables,
+    print_num_variables
 )
 from ...run_benchmark import compute_cuts_str
 from tools import get_project_path
@@ -65,6 +66,7 @@ class LoggerWriter:
     compute_solutions,
     print_index_variables_matrices,
     num_matrices_variables,
+    print_num_variables
 )
 class MosekFusionHandler:
     """

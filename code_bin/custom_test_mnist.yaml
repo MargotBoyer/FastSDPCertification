@@ -1,0 +1,45 @@
+# Example for using customized model and data loader.
+# Model and data loader defined in custom_model_data.py
+# python abcrown.py --config exp_configs/tutorial_examples/custom_model_data_example.yaml
+general:
+  results_file: verification_results.txt
+  
+  # Save detailed output dictionary as pickle file
+  save_output: true
+  output_file: verification_output.pkl
+  
+  # IMPORTANT: Set to false when using custom models (not ONNX)
+  save_adv_example: false
+  show_adv_example: false
+  eval_adv_example: false
+  
+  # Enable to see detailed progress for each target class
+  enable_incomplete_verification: true
+  csv_name: null  # Set to filename.csv to save per-target results
+  
+  # DEBUGGING: Activez le mode complet pour voir tous les détails
+  complete_verifier: bab  # Assurez-vous que BaB est activé
+  
+  # Mode de vérification
+  #mode: verified-acc
+model:
+  # Use the simple_fc_model_margot in "custom_model_data.py".
+  name: Customized("custom_model_data", "simple_fc_model_margot", K=7, n=[784,100,100,100,100,100,100,10], out_dim=10)
+  path: models/test_margot/mnist_adv_6x100.pt
+data:
+  # Use the mnist_filtered() loader in "custom_model_data.py".
+  dataset: Customized("custom_model_data", "mnist_filtered")
+  start: 0
+  end: 10
+specification:
+  epsilon: 0.175  # 2./255.
+  norm: .inf
+  robustness_type: verified-acc  # Type de robustesse à vérifier
+attack:
+  pgd_restarts: 100
+solver:
+  batch_size: 2048
+  beta-crown:
+    iteration: 20
+bab:
+  timeout: 4000
