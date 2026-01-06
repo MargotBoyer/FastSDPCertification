@@ -25,13 +25,13 @@ from ..common_handler_functions import (
     num_matrices_variables,
     print_num_variables
 )
-from ...run_benchmark import compute_cuts_str
+from solve.mosek_solve.run_benchmark import compute_cuts_str
 from tools import get_project_path
 
 
 from mosek.fusion import Model, Domain
 
-from ...get_variables import (
+from solve.mosek_solve.get_variables import (
     compute_solutions,
     initialize_variables,
     save_matrix_csv,

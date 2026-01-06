@@ -163,6 +163,7 @@ def _add_ni(
     Add an equivalent neuron to the list.
     """
     index_equivalent = _get_key_linear_(i, num_matrix, M)
+    print("index equivalent : ", index_equivalent)
     if index_equivalent in equivalent_neurons_substract:
         equivalent_neurons_substract[index_equivalent] += value
     else:
@@ -170,14 +171,16 @@ def _add_ni(
 
 
 class Equivalent_Neurons_Index:
-    def __init__(self):
+    def __init__(self, K : int, LAST_LAYER : bool):
         self.M = big_M_cst
+        self.K = K
+        self.LAST_LAYER = LAST_LAYER
         self.equivalent_neurons = {}
 
     def get_index(self, layer: int, neuron: int):
         return _get_key_from_layer_neuron_(layer=layer, neuron=neuron, M=self.M)
 
-    def create_dict(self, layer: int, neuron: int):
+    def create_dict(self, layer: int, neuron: int, K : int, LAST_LAYER : bool):
         """
         Create a dictionary for the equivalent neurons.
         """
@@ -185,16 +188,18 @@ class Equivalent_Neurons_Index:
         key = _get_key_from_layer_neuron_(layer=layer, neuron=neuron, M=self.M)
         #print(f"Creating dict for neuron {neuron} at layer {layer} with key {key}")
         assert key not in self.equivalent_neurons, f"Index {key} already exists."
-        self.equivalent_neurons[key] = {
-            "weights_front": Dict.empty(
-                key_type=numba.types.int64, value_type=numba.types.float64
-            ),
-            "weights_back": Dict.empty(
-                key_type=numba.types.int64, value_type=numba.types.float64
-            ),
-            "constant": 0.0,
-        }
 
+        self.equivalent_neurons[key] = {"constant" : 0.0}
+        if layer > 0:
+            self.equivalent_neurons[key]["weights_back"] = Dict.empty(
+                    key_type=numba.types.int64, value_type=numba.types.float64
+                )
+        if (layer <= K - 1 and not LAST_LAYER) or (layer <= K) : 
+            self.equivalent_neurons[key]["weights_front"] = Dict.empty(
+                    key_type=numba.types.int64, value_type=numba.types.float64
+                )
+
+    
     def add(
         self,
         layer: int,
@@ -206,7 +211,7 @@ class Equivalent_Neurons_Index:
     ):
         key = _get_key_from_layer_neuron_(layer=layer, neuron=neuron, M=self.M)
         assert key in self.equivalent_neurons, f"Index {key} does not exist."
-
+        print(f"layer = {layer}, neuron = {neuron}, i = {i}, num_matrix = {num_matrix}, value = {value}, front_of_matrix = {front_of_matrix}, key = {key}")
         weight_str = "weights_front" if front_of_matrix else "weights_back"
         _add_ni(
             i,
@@ -236,6 +241,8 @@ class Equivalent_Neurons_Index:
         """
         Get the equivalent neurons for a given key.
         """
+        if not ( (not front_of_matrix and layer > 0) or (front_of_matrix and layer < self.K - 1) ):
+            print(f"ERROR : layer = {layer}, neuron = {neuron}; K = {self.K}, front_of_matrix = {front_of_matrix}" )
         index = self.get_index(layer, neuron)
         assert index in self.equivalent_neurons, f"Index {index} does not exist."
         weights_str = "weights_front" if front_of_matrix else "weights_back"

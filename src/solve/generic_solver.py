@@ -49,8 +49,8 @@ class Solver:
         self.network = network.to(device)
         self.K = network.K
         self.n = network.n
-        self.W = round_list_depth_3(network.W, decimal = 3)  ### remettre à 6 par defaut
-        self.b = round_list_depth_2(network.b, decimal = 3)   ### remettre à 6 par defaut
+        self.W = round_list_depth_3(network.W, decimal = 6)  ### remettre à 6 par defaut
+        self.b = round_list_depth_2(network.b, decimal = 6)   ### remettre à 6 par defaut
 
         self.n = np.array(self.n)
         self.W = [np.array(self.W[k - 1]) for k in range(1, self.K + 1)]
@@ -82,8 +82,8 @@ class Solver:
                 method=self.bounds_method,
             )
         ### BORNES (A COMMENTER APRES TEST)
-        self.U = round_list_depth_2(self.U, decimal = 3)
-        self.L = round_list_depth_2(self.L, decimal = 3)
+        # self.U = round_list_depth_2(self.U, decimal = 3)
+        # self.L = round_list_depth_2(self.L, decimal = 3)
         #####
 
         print(
@@ -153,7 +153,7 @@ class Solver:
                     f.write(f"\n            b = {self.b[k - 1][j]}")
                     f.write(f"\n            U = {self.U[k][j]}, L = {self.L[k][j]}")
 
-        self.ytargets = [0,1]
+        #self.ytargets = [0,1]
 
         self.is_trivially_solved = self.ytargets == []
         print("STUDY: is trivially solved: ", self.is_trivially_solved)

@@ -12,13 +12,3 @@ dependencies = []
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = [
-    "adversarial_attacks",
-    "conic_bundle",
-    "data",
-    "networks",
-    "solve",
-    "gurobi_solve",
-    "mosek_solve",
-    "tools"
-]

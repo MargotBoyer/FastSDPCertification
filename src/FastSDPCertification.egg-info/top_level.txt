@@ -1,4 +1,6 @@
 adversarial_attacks
+bounds
+certification_problem
 conic_bundle
 data
 networks

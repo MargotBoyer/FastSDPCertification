@@ -20,6 +20,7 @@ def ReLU_constraint_stable_active_relaxation(
     ):
         return
 
+    print(f"    STUDY NEW SUBCONSTRAINT  RELU k = {k} j = {j}, bound_sense = {bound_sense}; bound_type = {bound_type}")
     self.handler.Constraints.add_quad_variable(
         var1="z",
         layer1=k,
@@ -31,6 +32,7 @@ def ReLU_constraint_stable_active_relaxation(
         front_of_matrix1=False,
         front_of_matrix2=False,
     )
+    print("     add_quad_variable : OK")
 
     self.handler.Constraints.add_linear_variable(
         "z",
@@ -44,6 +46,8 @@ def ReLU_constraint_stable_active_relaxation(
         if (k - 1, i) in self.stable_inactives_neurons:
             continue
         elif (k - 1, i) in self.stable_actives_neurons:
+            #print(f"STUDY RELU : layer = {k-1}, neuron = {i}, weight = {self.network.W[k - 1][j][i]}")
+            print("     add_quad_bound_stable_actives ")
             self.handler.Constraints.add_z_quad_bound(
                 layer_prev=k - 1,
                 neuron_prev=i,
@@ -55,9 +59,11 @@ def ReLU_constraint_stable_active_relaxation(
                 bound_sense=bound_sense,
                 bound_type=bound_type,
             )
+            
 
         else:
             # print(f"Adding non-stable neuron ({k-1}, {i}) with weight {self.network.W[k - 1][j][i]}")
+            print("     add_quad_bound_unstable")
             self.handler.Constraints.add_quad_variable(
                 var1="z",
                 layer1=k,
@@ -69,6 +75,7 @@ def ReLU_constraint_stable_active_relaxation(
                 front_of_matrix1=False,
                 front_of_matrix2=True,
             )
+           
 
     if bound_sense == "upper":
         self.handler.Constraints.add_bound(bound_type=mosek.boundkey.up, bound=0)
@@ -80,6 +87,8 @@ def ReLU_constraint_Lan(
     self,
 ):
     print("Adding quadratic RELU constraint")
+    print(f"STUDY NEW CONSTRAINT RELU")
+
     for k in range(1, self.K):
         print(f"Adding ReLU constraints for layer {k}")
         for j in range(self.n[k]):
@@ -129,6 +138,7 @@ def ReLU_constraint_Lan(
                     value=-self.network.W[k - 1][j][i],
                     layer=k - 1,
                     neuron=i,
+                    front_of_matrix = True
                 )
 
             self.handler.Constraints.add_bound(
@@ -155,6 +165,7 @@ def ReLU_constraint_Lan(
                 self.ReLU_constraint_stable_active_relaxation(
                     k, j, bound_sense="lower", bound_type="composed"
                 )
+                
 
             else:
                 # print("Adding normal ReLU constraint for layer", k, "neuron", j)
@@ -258,6 +269,7 @@ def ReLU_triangularization(self):
                     layer=k - 1,
                     neuron=i,
                     value=-k_cst * self.network.W[k - 1][j][i],
+                    front_of_matrix = True,
                 )
 
             self.handler.Constraints.add_bound(

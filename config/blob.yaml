@@ -6,7 +6,7 @@ data :
 
 input_ball:
   norm : "Linf"
-  epsilon : 0.1
+  epsilon : 0.2
 
 network :
   name : "blob_nn"
@@ -19,7 +19,7 @@ network :
   - 3
 
 models :
-  - certification_model_name : "LanSDP"
+  - certification_model_name : "MdSDP"
     cuts : 
     - "RLT"
     - "triangularization"
@@ -31,4 +31,5 @@ models :
     use_callback : false # Whether to use the callback for MOSEK
     use_active_neurons: false # Whether to use active neurons in the certification problem as variables
     use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
+    keep_penultimate_actives : true
     write_model : true

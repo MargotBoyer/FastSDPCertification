@@ -14,7 +14,7 @@ import datetime
 import shutil
 import argparse
 import multiprocessing as mp
-
+ 
 from tools import create_folder_benchmark, get_project_path
 from solve.mosek_solve import concat_dataframes_with_missing_columns
 
@@ -74,21 +74,21 @@ class Certification_Problem:
             Certification_Problem: An instance of the Certification_Problem class.
         """
         print(f"Loading certification problem from {yaml_file} ...")
-        network = networks.ReLUNN.from_yaml(f"config/{yaml_file}")
+        network = networks.ReLUNN.from_yaml(get_project_path(f"config/{yaml_file}"))
         if network is not None:
             print("Network loaded successfully.")
         else:
             print("Failed to load network.")
             return None
         print("Loading dataset ...")
-        dataset = data.load_dataset(f"config/{yaml_file}")
+        dataset = data.load_dataset(get_project_path(f"config/{yaml_file}"))
         if dataset is not None:
             print("Dataset loaded successfully.")
         else:
             print("Failed to load dataset.")
             return None
         print("Loading epsilon ...")
-        with open(f"config/{yaml_file}", "r") as file:
+        with open(get_project_path(f"config/{yaml_file}"), "r") as file:
             config = yaml.safe_load(file)
             print("CONFIG  inf CERTIFICATION PROBLEM:     ", config)
             epsilon = config["input_ball"]["epsilon"]
@@ -152,11 +152,11 @@ class Certification_Problem:
             # assert ytrue == y, "ytrue should match the label y"
 
             # SHARE
-            if i>=1:
+            if i!=56:
                 # print(
                 #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
                 # )
-                # print("Skipping data sample ", i + 1, "for testing purposes.")
+                #print("Skipping data sample ", i + 1, "for testing purposes.")
                 continue
 
         
@@ -276,6 +276,15 @@ class Certification_Problem:
             self.run(model_config, title_run)
 
 
+
+def main(network : str, title_run : str):
+    yaml_file = f"{network}.yaml"  # "mnist_one_data_benchmark.yaml"
+    certif_problem = Certification_Problem.load_from_yaml(yaml_file)
+
+    launch_date = datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss")
+    certif_problem.solve(launch_date + "_" + title_run)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training Network Parser")
 
@@ -284,9 +293,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("Number of CPU : ", mp.cpu_count())
+    main(network = args.network, title_run = args.title_run)
 
-    yaml_file = f"{args.network}.yaml"  # "mnist_one_data_benchmark.yaml"
-    certif_problem = Certification_Problem.load_from_yaml(yaml_file)
-
-    launch_date = datetime.datetime.now().strftime("%m_%d_%Hh%M_%Ss")
-    certif_problem.solve(launch_date + "_" + args.title_run)
+    

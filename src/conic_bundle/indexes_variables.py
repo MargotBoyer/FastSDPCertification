@@ -107,6 +107,7 @@ class Indexes_Variables_for_Conic_Bundle_Parser:
                 f"Neuron {neuron} in layer {layer} is inactive and cannot be used."
             )
         if self.BETAS:
+            print("self.BETAS dans index_variables")
             if matrix:
                 return (
                     1
@@ -125,6 +126,7 @@ class Indexes_Variables_for_Conic_Bundle_Parser:
                     - self.get_number_stable_neurons_before_layer(layer, neuron)
                 )
         else:
+            print("NOT self.BETAS dans index_variables")
             if matrix:
                 return (
                     1

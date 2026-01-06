@@ -315,11 +315,16 @@ class VariablesCall:
         assert self.LAST_LAYER is not None, "LAST_LAYER must be specified."
         assert self.BETAS is not None, "BETAS must be specified."
 
-        self.equivalent_neurons = Equivalent_Neurons_Index()
+        self.equivalent_neurons = Equivalent_Neurons_Index(K = self.K, LAST_LAYER=self.LAST_LAYER)
         self.equivalent_indexes_betas = Equivalent_Betas_Index(ytargets=self.ytargets)
+        print("EQUIVALENT INDEX OK")
         self.create_equivalent_indexes_matrices()
-        #self._print_equivalent_indexes_()
+        print("CREATE EQUIVALENT OK")
+        
+        self._print_equivalent_indexes_()
+        print("PRINT EQUIVALENT OK")
         self.study_indexes_equivalent_neurons()
+        print("STUDY INDEX OK")
 
     def create_equivalent_indexes_matrices(self):
 
@@ -329,18 +334,24 @@ class VariablesCall:
                 equivalent_values_neurons, constant = (
                     self.layers_values.get_equivalent_values(layer, neuron)
                 )
-                self.equivalent_neurons.create_dict(layer=layer, neuron=neuron)
+                self.equivalent_neurons.create_dict(layer=layer, neuron=neuron, K = self.K, LAST_LAYER=self.LAST_LAYER)
+                print(f'\n \n CREATE DICT OK layer = {layer}, neuron = {neuron}')
                 for (k, j), val in equivalent_values_neurons.items():
+                    print(f"\n k = {j}, j = {j}")
 
                     if (k < self.K - 1 and not self.LAST_LAYER) or (
                         k < self.K and self.LAST_LAYER
                     ):
+                        print("K: ", self.K)
+                        print("FRONT_OF_MATRIX = TRUE")
                         ind_i = self.indexes_variables._get_variable_index(
                             "z", layer=k, neuron=j, front_of_matrix=True
                         )
+                        print("in_i OK")
                         ind_num_matrix = self.indexes_matrices._get_matrix_index(
                             "z", layer=k, neuron=j, front_of_matrix=True
                         )
+                        print(f"ind_i = {ind_i}, ind_num_matrix = {ind_num_matrix}")
                         self.equivalent_neurons.add(
                             layer=layer,
                             neuron=neuron,
@@ -349,7 +360,9 @@ class VariablesCall:
                             value=val,
                             front_of_matrix=True,
                         )
+                        print("FRONT_OF_MATRIX = TRUE : OK")
                     if k > 0:
+                        print("BACK_OF_MATRIX = TRUE")
                         ind_i_back = self.indexes_variables._get_variable_index(
                             "z", layer=k, neuron=j, front_of_matrix=False
                         )
@@ -364,6 +377,7 @@ class VariablesCall:
                             value=val,
                             front_of_matrix=False,
                         )
+                        print("BACK_OF_MATRIX = TRUE : OK")
 
                 self.equivalent_neurons.add_constant(
                     layer=layer,
@@ -423,25 +437,35 @@ class VariablesCall:
         for layer in range(self.K + 1):
             line += f"Layer {layer}:\n"
             for neuron in range(self.n[layer]):
-                front = self.equivalent_neurons.get_equivalent(
-                    layer=layer, neuron=neuron, front_of_matrix=True
-                )
-                back = self.equivalent_neurons.get_equivalent(
-                    layer=layer, neuron=neuron, front_of_matrix=False
-                )
+                print(f"PRINT layer = ;{layer}, neuron = {neuron}")
+                
+                
                 constant = self.equivalent_neurons.get_constant(
                     layer=layer, neuron=neuron
                 )
                 line += f"\n  Layer {layer} Neuron {neuron}: \n"
-                line += f"    FRONT_OF_MATRIX \n"
-                for key, value in front.items():
-                    i, num_matrix = _get_linear_indices_from_key(key, 13)
-                    line += f"  {(num_matrix,i)} : {value};   "
-                line += f"\n    BACK_OF_MATRIX \n"
-                for key, value in back.items():
-                    i, num_matrix = _get_linear_indices_from_key(key, 13)
-                    line += f"{(num_matrix,i)} : {value};   "
-                line += f"    constant : {constant}\n"
+                if (layer < self.K - 1 and not self.LAST_LAYER) or (
+                        layer < self.K and self.LAST_LAYER
+                    ):
+                    print("PRINT : front of matrix")
+                    front = self.equivalent_neurons.get_equivalent(
+                        layer=layer, neuron=neuron, front_of_matrix=True
+                    )
+                    print("equivalent succes")
+                    line += f"    FRONT_OF_MATRIX \n"
+                    for key, value in front.items():
+                        i, num_matrix = _get_linear_indices_from_key(key, 13)
+                        line += f"  {(num_matrix,i)} : {value};   "
+                if layer > 0 : 
+                    print("print : BACK OF MATRIX")
+                    line += f"\n    BACK_OF_MATRIX \n"
+                    back = self.equivalent_neurons.get_equivalent(
+                        layer=layer, neuron=neuron, front_of_matrix=False
+                    )
+                    for key, value in back.items():
+                        i, num_matrix = _get_linear_indices_from_key(key, 13)
+                        line += f"{(num_matrix,i)} : {value};   "
+                line += f"\n    constant : {constant}\n"
         if self.BETAS:
             for class_label in self.ytargets:
                 line += f"Class {class_label}:"
@@ -500,13 +524,16 @@ class VariablesCall:
         if var == "z":
             layer = kwargs.get("layer", None)
             neuron = kwargs.get("neuron", None)
-            front_of_matrix = kwargs.get("front_of_matrix", True)
+            front_of_matrix = kwargs.get("front_of_matrix", None)
             assert layer is not None, "Layer must be specified for z variable."
             assert neuron is not None, "Neuron must be specified for z variable."
             assert (
                 front_of_matrix is not None
             ), "Front of matrix must be specified for z variable."
 
+            assert (front_of_matrix or layer>0, "Layer 0 cannot be a the back of matrix")
+            assert (not front_of_matrix or not(layer == self.K or (layer == self.K-1 and self.LAST_LAYER)), f"Layer {layer} cannot be at the front of matrix")
+        
             self.add_var(
                 dict1=self.equivalent_neurons.get_equivalent(
                     layer=layer, neuron=neuron, front_of_matrix=front_of_matrix
@@ -552,7 +579,7 @@ class VariablesCall:
         if var1 == "z" and var2 == "beta":
             layer1 = kwargs.get("layer1", None)
             neuron1 = kwargs.get("neuron1", None)
-            front_of_matrix1 = kwargs.get("front_of_matrix1", True)
+            front_of_matrix1 = kwargs.get("front_of_matrix1", None)
             assert layer1 is not None, "Layer must be specified for z variable."
             assert neuron1 is not None, "Neuron must be specified for z variable."
             assert (
@@ -574,7 +601,7 @@ class VariablesCall:
         elif var1 == "beta" and var2 == "z":
             layer2 = kwargs.get("layer2", None)
             neuron2 = kwargs.get("neuron2", None)
-            front_of_matrix2 = kwargs.get("front_of_matrix2", True)
+            front_of_matrix2 = kwargs.get("front_of_matrix2", None)
             assert layer2 is not None, "Layer must be specified for z variable."
             assert neuron2 is not None, "Neuron must be specified for z variable."
             assert (
@@ -615,7 +642,7 @@ class VariablesCall:
         elif var1 == "z" and var2 == "z":
             layer1 = kwargs.get("layer1", None)
             neuron1 = kwargs.get("neuron1", None)
-            front_of_matrix1 = kwargs.get("front_of_matrix1", True)
+            front_of_matrix1 = kwargs.get("front_of_matrix1", None)
             assert layer1 is not None, "Layer must be specified for z variable."
             assert neuron1 is not None, "Neuron must be specified for z variable."
             assert (
@@ -623,7 +650,7 @@ class VariablesCall:
             ), "Front of matrix must be specified for z variable."
             layer2 = kwargs.get("layer2", None)
             neuron2 = kwargs.get("neuron2", None)
-            front_of_matrix2 = kwargs.get("front_of_matrix2", True)
+            front_of_matrix2 = kwargs.get("front_of_matrix2", None)
             assert layer2 is not None, "Layer must be specified for z variable."
             assert neuron2 is not None, "Neuron must be specified for z variable."
             assert (
@@ -669,8 +696,7 @@ class VariablesCall:
         equivalent_values_neurons, constant = self.layers_values.get_equivalent_values(
             layer_prev, neuron_prev
         )
-        print()
-        print(f"STUDY RELU Layer_prev : {layer_prev}, neuron_prev = {neuron_prev} : constant = {constant}, quivalent_values = ", equivalent_values_neurons)
+        print(f"            STUDY RELU add z quad bound layer_next = {layer_next}, neuron_next = {neuron_next}; front_of_matrix_next = {front_of_matrix_next}; layer_prev = {layer_prev}, neuron_prev = {neuron_prev} : front_of_matrix_prev = {front_of_matrix_prev}; weight = {weight}, constant = {constant} equivalent_values = ", equivalent_values_neurons)
      
         # print(
         #     f"RELU STABLE bound_type: {bound_type}, bound_sense: {bound_sense}, weight = {weight}, constant = {constant}"
@@ -774,14 +800,16 @@ class VariablesCall:
                             value=weight * val1,
                         )
 
-        print(f"STUDY RELU layer_next = {layer_next}, neuron_next = {neuron_next}; layer_prev = {layer_prev}, neuron_prev = {neuron_prev} : weight = {weight}, constant = {constant}")
+        print("            STUDY RELU add z quad bound - partie linéaire")
         self.add_linear_variable(
             var="z",
             layer=layer_next,
             neuron=neuron_next,
-            front_of_matrix2=front_of_matrix_next,
+            front_of_matrix=front_of_matrix_next,
             value=-weight * constant,
         )
+        print("            STUDY RELU add z quad bound - partie linéaire : DONE")
+
 
     def add_z_bound_one_variable_1(
         self,
@@ -801,6 +829,7 @@ class VariablesCall:
         if layer1 > 0:
             # print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
             return
+        print(f"                    STUDY RELU  add_z_bound_one_variable_1  : add ({layer2},{neuron2}) : value = {value}; L= {self.L[layer1][neuron1]}")
         self.add_linear_variable(
             var="z",
             layer=layer2,
@@ -808,6 +837,7 @@ class VariablesCall:
             front_of_matrix=front_of_matrix2,
             value=-value * self.L[layer1][neuron1],
         )
+        print(f"                    STUDY RELU  add_z_bound_one_variable_1  : add ({layer2},{neuron2}) : value = {value}; L= {self.L[layer1][neuron1]} : DONE")
 
     def add_z_bound_one_variable_2(
         self,
@@ -824,6 +854,7 @@ class VariablesCall:
         #     f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*U={self.U[layer1][neuron1]}    add_z_bound_one_variable_2 "
         # )
         #print("STUDY RELU : add_z_bound_composed_2")
+        print(f"                        STUDY RELU  add_z_bound_one_variable__2 : add ({layer2},{neuron2}) : value = {value}; U= {self.U[layer1][neuron1]}")
         self.add_linear_variable(
             var="z",
             layer=layer2,
@@ -831,6 +862,7 @@ class VariablesCall:
             front_of_matrix=front_of_matrix2,
             value=-value * self.U[layer1][neuron1],
         )
+        print(f"                        STUDY RELU  add_z_bound_one_variable__2 : add ({layer2},{neuron2}) : value = {value}; U= {self.U[layer1][neuron1]} : DONE")
 
     def add_z_bound_composed_3(
         self,
@@ -846,7 +878,7 @@ class VariablesCall:
         # print(
         #     f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*U={self.U[layer1][neuron1]}    add_z_bound_composed_3 "
         # )
-        #print("STUDY RELU : add_z_bound_composed_3")
+        print(f"                    STUDY RELU add_z_bound_composed_3: add ({layer2},{neuron2}) : value = {value}; U= {self.U[layer1][neuron1]}")
         self.add_linear_variable(
             var="z",
             layer=layer2,
@@ -857,6 +889,7 @@ class VariablesCall:
         # print(
         #     f"RELU STABLE: z_{layer1}_{neuron1}, value = -{value}*U={self.U[layer2][neuron2]}    add_z_bound_composed_3 "
         # )
+        print(f"                        STUDY RELU add_z_bound_composed_3: add ({layer1},{neuron1}) : value = {value}; U= {self.U[layer2][neuron2]}")
         self.add_linear_variable(
             var="z",
             layer=layer1,
@@ -864,7 +897,9 @@ class VariablesCall:
             front_of_matrix=front_of_matrix1,
             value=-value * self.U[layer2][neuron2],
         )
+        print(f"                        STUDY RELU add_z_bound_composed_3 : add constant = value {value} * U {self.U[layer1][neuron1]} * U {self.U[layer2][neuron2]}")
         self.add_constant(value * self.U[layer1][neuron1] * self.U[layer2][neuron2])
+        print(f"                        STUDY RELU add_z_bound_composed_3 : DONE")
 
     def add_z_bound_composed_4(
         self,
@@ -880,7 +915,7 @@ class VariablesCall:
         # print(
         #     f"RELU STABLE: z_{layer1}_{neuron1}, value = -{value}*U={self.U[layer2][neuron2]}    add_z_bound_composed_3 "
         # )
-        #print("STUDY RELU : add_z_bound_composed_4")
+        print("                 STUDY RELU : add_z_bound_composed_4")
         self.add_linear_variable(
             var="z",
             layer=layer1,
@@ -890,6 +925,7 @@ class VariablesCall:
         )
         if layer1 > 0:
             # print(f"RELU STABLE: Skipping as layer1 = {layer1} > 0")
+            print(f"                        STUDY RELU add_z_bound_composed_4 (layer1 > 0): DONE")
             return
         # print(
         #     f"RELU STABLE: z_{layer2}_{neuron2}, value = -{value}*L={self.L[layer1][neuron1]}    add_z_bound_composed_3 "
@@ -902,6 +938,7 @@ class VariablesCall:
             value=-value * self.L[layer1][neuron1],
         )
         self.add_constant(value * self.L[layer1][neuron1] * self.U[layer2][neuron2])
+        print(f"                        STUDY RELU add_z_bound_composed_4 : DONE")
 
     # def add_linear_variable(self, var: str, value: float, **kwargs):
     #     """

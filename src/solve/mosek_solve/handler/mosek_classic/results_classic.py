@@ -4,7 +4,7 @@ import logging
 import numpy as np
 
 from tools import get_project_path
-from ...get_variables import print_solution_to_file_for_cb_solver
+from solve.mosek_solve.get_variables import print_solution_to_file_for_cb_solver
 
 
 logger_mosek = logging.getLogger("Mosek_logger")

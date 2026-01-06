@@ -22,14 +22,14 @@ from .results_classic import (
 )
 from .callback_classic import makeUserCallback
 
-from ...run_benchmark import compute_cuts_str
+from solve.mosek_solve.run_benchmark import compute_cuts_str
 
 from ..common_handler_functions import (
     print_index_variables_matrices,
     num_matrices_variables,
     print_num_variables,
 )
-from ...get_variables import (
+from solve.mosek_solve.get_variables import (
     initialize_variables,
     get_results,
     save_matrix_csv,
