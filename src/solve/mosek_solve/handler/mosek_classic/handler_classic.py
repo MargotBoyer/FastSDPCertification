@@ -111,8 +111,6 @@ class MosekClassicHandler:
         self.ytrue = kwargs.get("ytrue", None)
         self.ytarget = kwargs.get("ytarget", None)
 
-        print("CALLBACK : initializing matrices and variables classes in handler")
-
         self.indexes_matrices = Indexes_Matrixes_for_Mosek_Solver(
             **kwargs,
         )
@@ -178,7 +176,7 @@ class MosekClassicHandler:
         self.task.putdouparam(mosek.dparam.intpnt_tol_dfeas, 1e-3)
         # Limiter le temps et les itérations
         # self.task.putdouparam(mosek.dparam.optimizer_max_time, 7200)
-        # self.task.putintparam(mosek.iparam.intpnt_max_iterations, 200)
+         #self.task.putintparam(mosek.iparam.intpnt_max_iterations, 200)
         # Désactiver le présolve
         # self.task.putintparam(mosek.iparam.presolve_use, 0)
         # Utiliser le simplexe dual
@@ -190,6 +188,28 @@ class MosekClassicHandler:
         # self.task.putdouparam(mosek.dparam.intpnt_co_tol_dfeas, 1e-3)    # Faisabilité duale
         # self.task.putdouparam(mosek.dparam.intpnt_co_tol_infeas, 1e-4)   # Tolérance d'infaisabilité
         # self.task.putdouparam(mosek.dparam.intpnt_co_tol_mu_red, 1e-8)   # Réduction de mu
+
+
+        # Suggestion CLAUDE IO
+        # self.task.putintparam(mosek.iparam.presolve_use, mosek.presolvemode.off) # voir si le presolve repere des problèmes
+
+        # # Tolérances plus strictes pour forcer la convergence
+        # self.task.putdouparam(mosek.dparam.intpnt_tol_rel_gap, 1e-6)  # ou 1e-5
+        # self.task.putdouparam(mosek.dparam.intpnt_tol_pfeas, 1e-6)
+        # self.task.putdouparam(mosek.dparam.intpnt_tol_dfeas, 1e-6)
+
+        # # Augmenter les itérations max (vous êtes à 13, c'est peut-être trop court)
+        # self.task.putintparam(mosek.iparam.intpnt_max_iterations, 200)
+
+        # # Scaling agressif pour les problèmes mal conditionnés
+        # self.task.putintparam(mosek.iparam.intpnt_scaling, mosek.scalingtype.free)
+
+        # # Log détaillé pour diagnostiquer
+        # self.task.putintparam(mosek.iparam.log, 10)
+        # self.task.putintparam(mosek.iparam.log_intpnt, 1)
+
+        # # Threads
+        # self.task.putintparam(mosek.iparam.num_threads, 4)
 
     @count_calls(
         "init_variables"

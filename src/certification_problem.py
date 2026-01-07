@@ -152,7 +152,7 @@ class Certification_Problem:
             # assert ytrue == y, "ytrue should match the label y"
 
             # SHARE
-            if i!=56:
+            if i<=49:
                 # print(
                 #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
                 # )

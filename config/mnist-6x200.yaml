@@ -4,7 +4,9 @@ data :
   num_classes : 10
   num_samples : 100
 
-epsilon : 0.015
+input_ball : 
+  epsilon : 0.015
+  norm : "Linf"
 
 network :
   name : "6x200"
@@ -86,14 +88,14 @@ models :
     - "McC_betaz_logits"
     - "Tij_before_penultimate_layer"
     RLT_props : 
-    - 0.4
+    - 0.5
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
     use_fusion: false  # Whether to use the fusion API for MOSEK
     use_callback : false # Whether to use the callback for MOSEK
     use_active_neurons: true # Whether to use active neurons in the certification problem as variables
-    use_inactive_neurons : true # Whether to use inactive neurons in the certification problem as variables
+    use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
     keep_penultimate_actives : true # Whether to keep the penultimate layer active neurons in the certification problem
     bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
     alpha_1: 0.5

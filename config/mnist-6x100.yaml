@@ -6,7 +6,7 @@ data :
 
 input_ball : 
   norm : "Linf"
-  epsilon : 0.01   # 0.026
+  epsilon : 0.026   # 0.026
 
 network :
   name : "6x100"
@@ -93,7 +93,7 @@ models :
     - "McC_betaz_logits"
     - "Tij_before_penultimate_layer"
     RLT_props :
-    - 1.
+    - 0.5
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
