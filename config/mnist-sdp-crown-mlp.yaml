@@ -1,26 +1,22 @@
 data :
   name : "mnist"
-  path :  "data/datasets/MNIST/ConcatMNIST/20_classes/concatmnist_subset_1_per_class.pth"
-  num_classes : 20
-  num_samples : 20
+  path : "data/datasets/mnist_subset_10_per_class.pth"
+  num_classes : 10
+  num_samples : 100
 
-input_ball :
-  epsilon : 0.05
+input_ball : 
   norm : "Linf"
+  epsilon : 0.026   # 0.026
 
 network :
-  name : "concatmnist-6x100-20-classes"
-  path : "data/models/concatmnist_adv_concatmnist-6x100-20-classes.pt"
-  K : 7
+  name : "2x100"
+  path : "data/models/SDP-CROWN/mnist_mlp.pth"
+  K : 3
   n : 
     - 784
     - 100
     - 100
-    - 100
-    - 100
-    - 100
-    - 100
-    - 20
+    - 10
 
 
 
@@ -63,10 +59,14 @@ models :
   #   - "RLT"
   #   - "triangularization"
   #   RLT_props : 
-  #   - 0.2
-  #   # - 0.2
+  #   # - 0.
+  #   # - 0.1
+  #   # - 0.005
+  #   - 0.1
+  #   #- 0.2
   #   # - 0.3
-  #   # - 0.5
+  #   # - 0.1
+  #   # - 0.15
   #   all_combinations_cuts : false
   #   MATRIX_BY_LAYERS: true
   #   LAST_LAYER: false
@@ -88,8 +88,8 @@ models :
     - "beta_logits_comparaison_2"
     - "McC_betaz_logits"
     - "Tij_before_penultimate_layer"
-    RLT_props : 
-    - 1.
+    RLT_props :
+    - 1.0
     all_combinations_cuts : false
     MATRIX_BY_LAYERS: true
     LAST_LAYER: false
@@ -113,7 +113,6 @@ models :
   #   - "Tij_before_penultimate_layer"
   #   RLT_props : 
   #   - 0.1
-  #   - 0.2
   #   all_combinations_cuts : false
   #   MATRIX_BY_LAYERS: true
   #   LAST_LAYER: false
@@ -125,3 +124,11 @@ models :
   #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
   #   alpha_1: 0.5
   #   alpha_2: 0.5
+
+
+  # - certification_model_name : "ClassicLP"
+  #   LAST_LAYER: false
+  #   use_active_neurons: true # Whether to use active neurons in the certification problem as variables
+  #   use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
+  #   bounds_method: "alpha-CROWN"  # Method to compute bounds, options: "IBP", "GREAT_BOUNDS", "GREAT_BOUNDS_LIN"
+

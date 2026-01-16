@@ -44,7 +44,9 @@ class ReLUNN(nn.Module):
                 layer_relu_name = f"Layer_{k}_ReLU"
                 self.layers[layer_relu_name] = layer_relu
                 print("Dropout prob : ", dropout_prob)
-                self.layers["Layer_" + str(k) + "_Dropout"] = nn.Dropout(p=dropout_prob)
+                if dropout_prob > 0:
+                    self.layers[f"Layer_{k}_Dropout"] = nn.Dropout(p=dropout_prob)
+                
         if W is None:
             self.apply(self._init_weights)
 
@@ -116,6 +118,34 @@ class ReLUNN(nn.Module):
             n.append(out_features)
             print("n : ", n)
         return cls(K, n, W, b)
+    
+    @classmethod
+    def from_pth(cls, pth_path, dropout_prob=0):
+        "Robust to different architectures"
+        parametres = torch.load(pth_path, map_location="cpu")
+
+        print("parametres loaded in from pth : ", parametres)
+
+        W, b, n = [], [], []
+
+        k = 1
+        for key in parametres:
+            if key.endswith(".weight"):
+                weight = parametres[key]
+                bias = parametres[key.replace(".weight", ".bias")]
+
+                out_features, in_features = weight.shape
+
+                if not n:
+                    n.append(in_features)
+                n.append(out_features)
+
+                W.append(weight.tolist())
+                b.append(bias.tolist())
+
+        K = len(W)
+        return cls(K=K, n=n, W=W, b=b, dropout_prob=dropout_prob)
+
 
     def forward(self, x, verbose=False, return_last_hidden=False):
         """

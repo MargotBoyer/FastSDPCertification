@@ -13,12 +13,15 @@ def add_all_infos_optimal_values_to_dic(self, cuts: List, verbose: bool = False)
     Add all the information about the optimal values found to the dictionnary for the benchmark.
     """
     self.primal_obj_value = self.model.primalObjValue()
+
+    print("PRIMAL-DUAL : primal = ", self.task.getprimalobj(mosek.soltype.itr))
     logger_mosek.debug(
         "Optimal solution found with objective value: %s", self.primal_obj_value
     )
     print("Optimal solution found with objective value: ", self.primal_obj_value)
     self.dual_obj_value = self.model.dualObjValue()
     logger_mosek.info("Dual objective value: %s", self.dual_obj_value)
+    print("PRIMAL-DUAL : dual = ", self.task.getdualobj(mosek.soltype.itr))
     self.optimal_value = self.primal_obj_value  # Pas de constante hors du model ici
     print(
         f"Optimal value (no added constant, already written in model): {self.optimal_value} : with cuts {cuts}"

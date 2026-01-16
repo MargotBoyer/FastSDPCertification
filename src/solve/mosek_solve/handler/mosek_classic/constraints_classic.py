@@ -104,7 +104,6 @@ class ConstraintsClassic(CommonConstraints):
         #     )
         #     break
 
-        # exit()
 
     def add_var(
         self, dict1: numba.typed.Dict, value: float, dict2: numba.typed.Dict = None

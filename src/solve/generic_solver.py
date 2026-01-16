@@ -62,20 +62,26 @@ class Solver:
         self.norm = kwargs.get("norm", "Linf")
         print("STUDY : Norm used in Solver: ", self.norm)
         self.x = x
-        print("STUDY x = ", self.x)
+        
         self.ytrue = ytrue
         print("STUDY ytrue = ", self.ytrue)
 
         self.ytarget = kwargs.get("ytarget", None)
 
+        print("Creating list of ytargets...")
+        print("K : ", self.K)
+        print("self.n : ", self.n)
         if "Lan" in self.__class__.__name__ and self.ytarget is not None:
             self.ytargets = [self.ytarget]
         else:
             self.ytargets = [j for j in range(self.n[self.K]) if j != self.ytrue]
 
+        print("ytargets : ", self.ytargets)
         self.bounds_method = kwargs.get("bounds_method")
         self.L = L
         self.U = U
+
+        print("Getting to compute bounds...")
         
         if self.L is None or self.U is None:
             self.compute_bounds(

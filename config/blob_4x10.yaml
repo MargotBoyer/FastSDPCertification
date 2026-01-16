@@ -9,11 +9,13 @@ input_ball:
   epsilon : 0.1
 
 network :
-  name : "blob_nn"
-  path : "data/models/blob_adv_blob_nn.pt"
-  K : 3
+  name : "blob_nn_4x10"
+  path : "data/models/blob_adv_blob_nn_4x10.pt"
+  K : 5
   n :
   - 2
+  - 10
+  - 10
   - 10
   - 10
   - 3
@@ -31,5 +33,5 @@ models :
     use_callback : false # Whether to use the callback for MOSEK
     use_active_neurons: false # Whether to use active neurons in the certification problem as variables
     use_inactive_neurons : false # Whether to use inactive neurons in the certification problem as variables
-    keep_penultimate_actives : false
+    keep_penultimate_actives : true
     write_model : true

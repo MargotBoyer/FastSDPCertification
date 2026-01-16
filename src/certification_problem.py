@@ -74,12 +74,7 @@ class Certification_Problem:
             Certification_Problem: An instance of the Certification_Problem class.
         """
         print(f"Loading certification problem from {yaml_file} ...")
-        network = networks.ReLUNN.from_yaml(get_project_path(f"config/{yaml_file}"))
-        if network is not None:
-            print("Network loaded successfully.")
-        else:
-            print("Failed to load network.")
-            return None
+       
         print("Loading dataset ...")
         dataset = data.load_dataset(get_project_path(f"config/{yaml_file}"))
         if dataset is not None:
@@ -94,6 +89,15 @@ class Certification_Problem:
             epsilon = config["input_ball"]["epsilon"]
             norm = config["input_ball"]["norm"]
             print(f"Epsilon: {epsilon}, Norm: {norm}")
+
+        path_network = config["network"]["path"]
+        print("STUDY : path network : ", path_network)
+        network = networks.ReLUNN.from_pth(get_project_path(path_network))
+        if network is not None:
+            print("Network loaded successfully.")
+        else:
+            print("Failed to load network.")
+            return None
         validated_config = FullCertificationConfig(**config)
         print("Data name from config:", validated_config.data.name)
         return cls(
@@ -151,8 +155,8 @@ class Certification_Problem:
             #     continue
             # assert ytrue == y, "ytrue should match the label y"
 
-            # SHARE
-            if i<=49:
+            # # SHARE
+            if i>=1:
                 # print(
                 #     f"Stopping after 25 samples. Current sample index: {i}. You can change this limit in the code."
                 # )
@@ -162,7 +166,7 @@ class Certification_Problem:
         
 
             print("i : ", i)
-            # exit()
+
             x = x.view(-1)  # Ensure x is a 2D tensor
             print("x  shape after view:", x.shape)
             print(

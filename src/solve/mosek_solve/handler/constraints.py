@@ -450,5 +450,5 @@ class CommonConstraints(VariablesCall):
             )
         # print("CALLBACK constraints after filter : ", [cst["name"] for cst in self.list_cstr])
         # print("CALLBACK cstr_names after filter : ", self.cstr_names)
-        # exit()
+
         self.current_num_constraint = len(self.list_cstr) - 1

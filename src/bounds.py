@@ -17,7 +17,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP", norm : s
     Args:
         method (str): The method to compute the bounds (CROWN, IBP, Linear, etc.).
     """
-    print(f"Computing bounds with method: {method} ...")
+    print(f"STUDY : Computing bounds with method: {method} ...")
     print("epsilon : ", epsilon)
     L = [[-np.inf] * n[k] for k in range(K + 1)]
     U = [[np.inf] * n[k] for k in range(K + 1)]
@@ -41,7 +41,7 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP", norm : s
     zeros = torch.zeros_like(x).to(device)
     print("zeros device : ", zeros.device)
 
-    print("creating BoundedModule ...")
+    print("STUDY : creating BoundedModule ...")
     try:
 
         # # Vérif optional : assure que tout est bien sur cuda
@@ -90,12 +90,13 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP", norm : s
     # )
 
     bounded_model.eval()
-    print("bounded_model device : ", next(bounded_model.parameters()).device)
+    print("STUDY : bounded_model device : ", next(bounded_model.parameters()).device)
 
     if norm == "Linf":
         print("STUDY : Using Linf norm for perturbation.")
         ptb = PerturbationLpNorm(norm=np.inf, eps=epsilon)
     elif norm == "L2":
+        print("STUDY : pertubation L2 used")
         ptb = PerturbationLpNorm(norm=2, eps=epsilon)
         #ptb = PerturbationLpNorm(norm=np.inf, eps=epsilon**2)  # comparer les deux versions
     else:
@@ -109,48 +110,54 @@ def compute_bounds_data(network, x, epsilon, n, K, method: str = "IBP", norm : s
     intermediate_bounds = bounded_model.save_intermediate()
 
     intermediate_bounds_list = list(intermediate_bounds.keys())
-    print("STUDY ; Intermediate bounds list : ", intermediate_bounds_list)
+    print("STUDY : Intermediate bounds list : ", intermediate_bounds_list)
 
-    # for layer_name, (min_tensor, max_tensor) in intermediate_bounds.items():
-    #     print(f"{layer_name}:")
-    #     if self.data_modele == "blob":
-    #         print(f"  Min: {min_tensor.squeeze().cpu().numpy()}")
-    #         print(f"  Max: {max_tensor.squeeze().cpu().numpy()}")
-    #     else:
-    #         print(f"  Min SHAPE: {min_tensor.squeeze().cpu().numpy().shape}")
-    #         print("Min min : ", min_tensor.min())
-    #         print("Min max : ", min_tensor.max())
-    #         print(f"  Max SHAPE: {max_tensor.squeeze().cpu().numpy().shape}")
-    #         print("Max min : ", max_tensor.min())
-    #         print("Max max : ", max_tensor.max())
+    for layer_name, (min_tensor, max_tensor) in intermediate_bounds.items():
+        print(f"STUDY : {layer_name}")
+        print(f"STUDY : shape = {max_tensor.squeeze().detach().cpu().numpy().shape}")
+        
+        # if self.data_modele == "blob":
+        #     print(f"  Min: {min_tensor.squeeze().cpu().numpy()}")
+        #     print(f"  Max: {max_tensor.squeeze().cpu().numpy()}")
+        # else:
+        # print(f"  Min SHAPE: {min_tensor.squeeze().cpu().numpy().shape}")
+        print("STUDY : Min min : ", min_tensor.min())
+        # print("Min max : ", min_tensor.max())
+        # print(f"  Max SHAPE: {max_tensor.squeeze().cpu().numpy().shape}")
+        # print("Max min : ", max_tensor.min())
+        print("STUDY : Max max : ", max_tensor.max())
 
     layers_name = {}
     layers_name[intermediate_bounds_list[0]] = 0
+
+    print("STUDY : Preparing to create bounds...")
+    print('Intermediate_bounds_list : ', intermediate_bounds_list )
     for k in range(1, K + 1):
-        layers_name[intermediate_bounds_list[1 + (k - 1) * 3]] = k
+        print(f"Adding layer for k = {k}, num_layer = {1 + (k - 1) * 2}")
+        layers_name[intermediate_bounds_list[1 + (k - 1) * 2]] = k    ### !!!!  Before *3 because of the dropout layer  !!!!
     print("STUDY : Layers name mapping : ", layers_name)
 
-    print("Intermediate bounds list final values : ", intermediate_bounds_list[-1])
+    print("STUDY : Intermediate bounds list final values : ", intermediate_bounds_list[-1])
     layers_name[intermediate_bounds_list[-1]] = K
 
     for layer_name, (min_tensor, max_tensor) in intermediate_bounds.items():
 
         if layer_name not in layers_name:
-            # print(f"Layer {layer_name} not found in layers_name mapping.")
-            # print(f"  Min: {min_tensor.squeeze().shape}")
-            # print(f"  Max: {max_tensor.squeeze().shape} \n")
+            print(f"Layer {layer_name} not found in layers_name mapping.")
+            print(f"  Min: {min_tensor.squeeze().shape}")
+            print(f"  Max: {max_tensor.squeeze().shape} \n")
             continue
-        # print(f"{layer_name}:")
-        # print(f"  Min: {min_tensor.squeeze().shape}")
-        # print(f"  Max: {max_tensor.squeeze().shape} \n")
+        print(f"{layer_name}:")
+        print(f"  Min: {min_tensor.squeeze().shape}")
+        print(f"  Max: {max_tensor.squeeze().shape} \n")
         if layers_name[layer_name] == 0:
             # For the first layer, we set the lower bound to 0
             min_tensor = torch.clamp(min_tensor, min=0).view(-1)
             max_tensor = max_tensor.view(-1)
 
-        # print(
-        #     f"STUDY : Adding layer : {layer_name} : {layers_name[layer_name]}, min = {min_tensor.min().item()}, max = {max_tensor.max().item()}"
-        # )
+        print(
+            f"STUDY : Adding layer : {layer_name} : {layers_name[layer_name]}, min = {min_tensor.min().item()}, max = {max_tensor.max().item()}"
+        )
 
         L[layers_name[layer_name]] = (
             min_tensor.squeeze().detach().cpu().numpy().tolist()

@@ -47,7 +47,7 @@ def ReLU_constraint_stable_active_relaxation(
             continue
         elif (k - 1, i) in self.stable_actives_neurons:
             #print(f"STUDY RELU : layer = {k-1}, neuron = {i}, weight = {self.network.W[k - 1][j][i]}")
-            print("     add_quad_bound_stable_actives ")
+            
             self.handler.Constraints.add_z_quad_bound(
                 layer_prev=k - 1,
                 neuron_prev=i,
@@ -63,7 +63,7 @@ def ReLU_constraint_stable_active_relaxation(
 
         else:
             # print(f"Adding non-stable neuron ({k-1}, {i}) with weight {self.network.W[k - 1][j][i]}")
-            print("     add_quad_bound_unstable")
+            
             self.handler.Constraints.add_quad_variable(
                 var1="z",
                 layer1=k,

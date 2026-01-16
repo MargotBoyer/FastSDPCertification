@@ -163,7 +163,6 @@ def _add_ni(
     Add an equivalent neuron to the list.
     """
     index_equivalent = _get_key_linear_(i, num_matrix, M)
-    print("index equivalent : ", index_equivalent)
     if index_equivalent in equivalent_neurons_substract:
         equivalent_neurons_substract[index_equivalent] += value
     else:
@@ -211,7 +210,7 @@ class Equivalent_Neurons_Index:
     ):
         key = _get_key_from_layer_neuron_(layer=layer, neuron=neuron, M=self.M)
         assert key in self.equivalent_neurons, f"Index {key} does not exist."
-        print(f"layer = {layer}, neuron = {neuron}, i = {i}, num_matrix = {num_matrix}, value = {value}, front_of_matrix = {front_of_matrix}, key = {key}")
+        #print(f"layer = {layer}, neuron = {neuron}, i = {i}, num_matrix = {num_matrix}, value = {value}, front_of_matrix = {front_of_matrix}, key = {key}")
         weight_str = "weights_front" if front_of_matrix else "weights_back"
         _add_ni(
             i,

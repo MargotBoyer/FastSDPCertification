@@ -84,6 +84,7 @@ class MosekSolver(Solver):
         self.only_width_model = False
         print("STUDY : init in Mosek Solver tout done")
 
+
     @staticmethod
     def parse_yaml_mosek(yaml_file):
         with open(yaml_file, "r") as f:
@@ -278,7 +279,7 @@ class MosekSolver(Solver):
             #     ),
             # )
 
-            # exit()
+
 
             self.handler.Objective.add_to_task()
             if verbose : 
@@ -314,7 +315,6 @@ class MosekSolver(Solver):
             logger_mosek.info(
                 "Time taken to solve: %s seconds", self.handler.time_solving
             )
-            # exit()
             # print("Tracker : ", self.handler.tracker.get_arrays())
             if verbose :
                 print("CALLBACK : Getting results ...")

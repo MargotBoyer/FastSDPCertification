@@ -462,7 +462,6 @@ class Indexes_Variables_for_Mosek_Solver:
                 front_of_matrix = False
             elif front_of_matrix is None:
                 front_of_matrix = True
-            print(f"z front_of_matrix = {front_of_matrix}; layer = {layer}, neuron = {neuron}")
             if layer is None or neuron is None:
                 raise ValueError(
                     f"Layer and neuron required for z variable ({'first' if is_first else 'second'})"

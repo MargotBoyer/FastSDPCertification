@@ -4,7 +4,9 @@ data :
   num_classes : 10
   num_samples : 100
 
-epsilon : 0.015
+input_ball :
+  epsilon : 0.015
+  norm : "Linf"
 
 network :
   name : "9x200"
